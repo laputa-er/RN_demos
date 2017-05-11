@@ -4,14 +4,15 @@
  * @flow
  */
 
-var React = require('react')
-var ReactNative = require('react-native')
-var AppRegistry = ReactNative.AppRegistry
-var StyleSheet = ReactNative.StyleSheet
-var Text = ReactNative.Text
-var View = ReactNative.View
+import React from 'react'
+import {
+  AppRegistry,
+  StyleSheet,
+  Text,
+  View
+} from 'react-native' 
 
-var Son = React.createClass({
+const Son = React.createClass({
   getDefaultProps() {
     console.log('son', 'getDefaultProps')
   },
@@ -22,7 +23,7 @@ var Son = React.createClass({
     }
   },
   timesPlus() {
-    var times = this.state.times
+    let times = this.state.times
     times++
     this.setState({ times })
   },
@@ -139,7 +140,7 @@ var imoocApp = React.createClass({
   }
 })
 
-var styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -158,4 +159,4 @@ var styles = StyleSheet.create({
   }
 })
 
-AppRegistry.registerComponent('imoocApp', function(){ return imoocApp })
+AppRegistry.registerComponent('imoocApp', () => imoocApp)
