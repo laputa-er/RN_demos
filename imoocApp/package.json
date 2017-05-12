@@ -7,6 +7,9 @@
     "test": "jest"
   },
   "dependencies": {
+    "lodash": "^4.17.4",
+    "mockjs": "^1.0.1-beta3",
+    "query-string": "^4.3.4",
     "react": "16.0.0-alpha.6",
     "react-native": "0.44.0",
     "react-native-vector-icons": "^4.1.1"
