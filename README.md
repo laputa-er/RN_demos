@@ -3,7 +3,7 @@
 
 ## 用到的第三方库
  
-[react-native-vector-icons@4.1.1](https://github.com/oblador/react-native-vector-icons): 一个流行的图标库
-[mockjs](https://www.npmjs.com/package/mockjs): 将来自 Rap 的规则转换为数据。
-[query-string](https://www.npmjs.com/package/query-string)
-[lodash](https://www.npmjs.com/package/lodash)
++ [react-native-vector-icons@4.1.1](https://github.com/oblador/react-native-vector-icons): 一个流行的图标库
++ [mockjs](https://www.npmjs.com/package/mockjs): 将来自 Rap 的规则转换为数据。
++ [query-string](https://www.npmjs.com/package/query-string)
++ [lodash](https://www.npmjs.com/package/lodash)
