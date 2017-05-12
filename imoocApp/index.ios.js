@@ -4,7 +4,16 @@
  * @flow
  */
 
+// 原生模块
 import React, { Component } from 'react'
+import Icon from 'react-native-vector-icons/Ionicons'
+
+// 自定义 RN 模块
+import List from './app/creation/index'
+import Edit from './app/edit/index'
+import Account from './app/account/index'
+
+// 方法、接口或相关变量声明
 import {
   AppRegistry,
   StyleSheet,
@@ -12,37 +21,7 @@ import {
   Text,
   TabBarIOS
 } from 'react-native' 
-import Icon from 'react-native-vector-icons/Ionicons'
 
-class List extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text>列表页面</Text>
-      </View>
-    )
-  }
-}
-
-class Edit extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text>制作页面</Text>
-      </View>
-    )
-  }
-}
-
-class Account extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text>账户页面</Text>
-      </View>
-    )
-  }
-}
 
 class App extends Component {
   constructor(props) {
@@ -50,15 +29,6 @@ class App extends Component {
     this.state = {
       selectedTab: 'list'
     }
-  }
-
-  _renderContent(color: string, pageText: string, num?: number) {
-    return (
-      <View style={[styles.tabContent, {backgroundColor: color}]}>
-        <Text style={styles.tabText}>{pageText}</Text>
-        <Text style={styles.tabText}>{num} re-renders of the {pageText}</Text>
-      </View>
-    );
   }
 
   render() {
