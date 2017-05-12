@@ -7,6 +7,9 @@
 import React, { Component } from 'react'
 import Icon from 'react-native-vector-icons/Ionicons'
 
+import * as request from '../common/request'
+import config from '../common/config'
+
 import {
   StyleSheet,
   View,
@@ -26,32 +29,7 @@ export default class List extends Component {
     })
 
     this.state = {
-      dataSource: ds.cloneWithRows([
-        {
-            "_id": "810000198410164559",
-            "thumb": "http://dummyimage.com/1280x720/e82409)",
-            "title": "测试内容ic26",
-            "video": "http://szv1.mukewang.com/58100e84b3fee35c0f8b456b/H.mp4"
-        },
-        {
-            "_id": "220000198102108889",
-            "thumb": "http://dummyimage.com/1280x720/e61817)",
-            "title": "测试内容ic26",
-            "video": "http://szv1.mukewang.com/58100e84b3fee35c0f8b456b/H.mp4"
-        },
-        {
-            "_id": "510000201011096417",
-            "thumb": "http://dummyimage.com/1280x720/7c2721)",
-            "title": "测试内容ic26",
-            "video": "http://szv1.mukewang.com/58100e84b3fee35c0f8b456b/H.mp4"
-        },
-        {
-            "_id": "140000199305041519",
-            "thumb": "http://dummyimage.com/1280x720/665906)",
-            "title": "测试内容ic26",
-            "video": "http://szv1.mukewang.com/58100e84b3fee35c0f8b456b/H.mp4"
-        }
-      ])
+      dataSource: ds.cloneWithRows([])
     }
   }
 
@@ -59,7 +37,7 @@ export default class List extends Component {
     return (
       <TouchableHighlight>
         <View style={styles.item}>
-          <Text style={styles.itemTtitle}>{row.title}</Text>
+          <Text style={styles.itemTitle}>{row.title}</Text>
           <Image
             source={{uri: row.thumb}}
             style={styles.thumb}
@@ -89,12 +67,32 @@ export default class List extends Component {
       </TouchableHighlight>
     )
   }
+	
+	componentDidMount() {
+		this._fetchData()
+	}
+
+	_fetchData() {
+		request.get(config.api.base + config.api.creations, {
+			accessToken: 12345
+		})
+		.then(data => {
+			if (data.success) {
+				this.setState({
+					dataSource: this.state.dataSource.cloneWithRows(data.data)
+				})
+			}
+		})
+		.catch(error => {
+			console.error(error)
+		})
+	}
 
   render() {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.header__title}>列表页面</Text>
+          <Text style={styles.headerTitle}>列表页面</Text>
         </View>
         <ListView
           dataSource={this.state.dataSource}
@@ -134,7 +132,7 @@ const styles = StyleSheet.create({
     height: width * 0.5,
     resizeMode: 'cover'
   },
-  title: {
+  itemTitle: {
     padding: 10,
     fontSize: 18,
     color: '#333'
