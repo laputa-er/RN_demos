@@ -8,130 +8,100 @@ import React, { Component } from 'react'
 import {
   AppRegistry,
   StyleSheet,
+  View,
   Text,
-  View
+  TabBarIOS
 } from 'react-native' 
+import Icon from 'react-native-vector-icons/Ionicons'
 
-class Son extends Component{
-  constructor(props) {
-    super(props)
-    this.state = {
-      times: this.props.times
-    }
-  }
-  timesPlus() {
-    let times = this.state.times
-    times++
-    this.setState({ times })
-  }
-  timesReset() {
-    this.props.timesReset()
-  }
-  
-  componentWillMount() {
-    console.log('son', 'componentWillMount')
-  }
-  componentDidMount() {
-    console.log('son', 'componentDidMount')
-  }
-  componentWillReceiveProps(props) {
-    console.log('son', 'componentWillReceiveProps')
-    this.setState({
-      times: props.times
-    })
-  }
-  shouldComponentUpdate() {
-    console.log('son', 'shouldComponentUpdate')
-    return true
-  }
-  componentWillUpdate() {
-    console.log('son', 'componentWillUpdate')
-  }
-  componentDidUpdate() {
-    console.log('son', 'componentDidUpdate')
-  }
-  componentWillUmount() {
-    console.log('son', 'componentWillUmount')
-  }
+class List extends Component {
   render() {
-    console.log('son', 'render')
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome} onPress={this.timesPlus.bind(this)}>
-          有本事揍我啊
-        </Text>
-        <Text style={styles.instructions}>
-          你居然揍了我 {this.state.times} 次
-        </Text>
-        <Text style={styles.instructions} onPress={this.timesReset.bind(this)}>
-          信不信我亲亲你
-        </Text>
+        <Text>列表页面</Text>
       </View>
     )
   }
 }
 
-class imoocApp extends Component {
+class Edit extends Component {
+  render() {
+    return (
+      <View style={styles.container}>
+        <Text>制作页面</Text>
+      </View>
+    )
+  }
+}
+
+class Account extends Component {
+  render() {
+    return (
+      <View style={styles.container}>
+        <Text>账户页面</Text>
+      </View>
+    )
+  }
+}
+
+class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      hit: false,
-      times: 2
+      selectedTab: 'list'
     }
   }
-  
-  timesPlus() {
-    let times = this.state.times
-    times += 3
-    this.setState({ times })
-  }
-  timesReset() {
-    this.setState({ times: 0 })
-  }
-  willHit() {
-    this.setState({
-      hit: !this.state.hit
-    })
-  }
-  componentWillMount() {
-    console.log('father', 'componentWillMount')
-  }
-  componentDidMount() {
-    console.log('father', 'componentDidMount')
-  }
-  shouldComponentUpdate() {
-    console.log('father', 'shouldComponentUpdate')
-    return true
-  }
-  componentWillUpdate() {
-    console.log('father', 'componentWillUpdate')
-  }
-  componentDidUpdate() {
-    console.log('father', 'componentDidUpdate')
-  }
-  render() {
-    console.log('father', 'render')
+
+  _renderContent(color: string, pageText: string, num?: number) {
     return (
-      <View style={styles.container}>
-        {
-          this.state.hit
-          ? <Son times={this.state.times} timesReset={this.timesReset.bind(this)}/>
-          : null
-        }
-        <Text style={styles.welcome} onPress={this.timesReset.bind(this)}>
-          老子说: 心情好就放你一马
-        </Text>
-        <Text style={styles.instructions} onPress={this.willHit.bind(this)}>
-          到底揍不揍
-        </Text>
-        <Text style={styles.instructions}>
-          就揍了你 {this.state.times} 次而已
-        </Text>
-        <Text style={styles.instructions} onPress={this.timesPlus.bind(this)}>
-          不听话再揍你 3 次
-        </Text>
+      <View style={[styles.tabContent, {backgroundColor: color}]}>
+        <Text style={styles.tabText}>{pageText}</Text>
+        <Text style={styles.tabText}>{num} re-renders of the {pageText}</Text>
       </View>
-    )
+    );
+  }
+
+  render() {
+    return (
+      <TabBarIOS tintColor="#ee735c">
+        <Icon.TabBarItem
+          iconName='ios-videocam-outline'
+          selectedIconName='ios-videocam'
+          selected={this.state.selectedTab === 'list'}
+          onPress={() => {
+            this.setState({
+              selectedTab: 'list',
+            });
+          }}>
+          <List />
+        </Icon.TabBarItem>
+        <Icon.TabBarItem
+          iconName='ios-recording-outline'
+          selectedIconName='ios-recording'
+          selected={this.state.selectedTab === 'edit'}
+          onPress={() => {
+            this.setState({
+              selectedTab: 'edit',
+              notifCount: this.state.notifCount + 1,
+            });
+          }}>
+          <Edit />
+        </Icon.TabBarItem>
+        <Icon.TabBarItem
+          iconName='ios-more-outline'
+          selectedIconName='ios-more'
+          renderAsOriginal
+          selected={this.state.selectedTab === 'account'}
+          onPress={() => {
+            this.setState({
+              selectedTab: 'account',
+              presses: this.state.presses + 1
+            });
+          }}>
+          <Account />
+        </Icon.TabBarItem>
+      </TabBarIOS>
+    );
   }
 }
 
@@ -141,17 +111,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
   }
 })
 
-AppRegistry.registerComponent('imoocApp', () => imoocApp)
+AppRegistry.registerComponent('imoocApp', () => App)
