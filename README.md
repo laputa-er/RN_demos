@@ -1,5 +1,5 @@
 # RN_demos
-买了一个慕课网的课程[《实战\React Native贯穿全栈开发App React Native贯穿全栈开发App》](http://coding.imooc.com/learn/list/56.html)，学习中的一些实践代码托管在这里。笔记的地址也[提供出来](http://coding.imooc.com/learn/list/56.html)，万一有人感兴趣呢……（＾_＾）
+买了一个慕课网的课程[《实战\React Native贯穿全栈开发App React Native贯穿全栈开发App》](http://coding.imooc.com/learn/list/56.html)，学习中的一些实践代码托管在这里。笔记的地址也[提供出来](http://laputa-er.github.io/2017/05/01/%E6%85%95%E8%AF%BE%E7%BD%91/imooc_React-Native-%E8%B4%AF%E7%A9%BF%E5%85%A8%E6%A0%88%E5%BC%80%E5%8F%91-APP/)，万一有人感兴趣呢……（＾_＾）
 
 ## 用到的第三方库
  
