@@ -11,6 +11,7 @@ import * as request from '../common/request'
 import config from '../common/config'
 
 import {
+	AlertIOS,
 	RefreshControl,
   StyleSheet,
   View,
@@ -32,8 +33,37 @@ class Item extends Component {
 	constructor(props) {
 		super(props)
 		this.state = {
+			up: props.row.voted,
 			row: props.row
 		}
+	}
+
+	_up() {
+		const up = !this.state.up
+		const row = this.state.row
+		const url = config.api.base + config.api.up
+
+		const body = {
+			id: row._id,
+			up: up ? 'yes' : 'no',
+			accessToken: '12345'
+		}
+
+		request.post(url, body)
+			.then(data => {
+				if (data && data.success) {
+					this.setState({
+						up: up
+					})
+				}
+				else {
+					AlertIOS.alert('点赞失败，稍后重试')
+				}
+			})
+			.catch(err => {
+				console.log(err)
+				AlertIOS.alert('点赞失败，稍后重试')
+			})
 	}
 
 	render() {
@@ -54,17 +84,18 @@ class Item extends Component {
           <View style={styles.itemFooter}>
             <View style={styles.handleBox}>
               <Icon
-                name='ios-heart-outline'
+								onPress={this._up.bind(this)}
+                name={this.state.up ? 'ios-heart' : 'ios-heart-outline'}
                 size={28}
-                style={styles.up} />
-              <Text style={styles.handleText}></Text>
+                style={[styles.up, this.state.up ? null : styles.down]} />
+              <Text style={styles.handleText} onPress={this._up.bind(this)}>喜欢</Text>
             </View>
             <View style={styles.handleBox}>
               <Icon
                 name='ios-chatboxes-outline'
                 size={28}
                 style={styles.commentIcon} />
-              <Text style={styles.handleText}></Text>
+              <Text style={styles.handleText}>评论</Text>
             </View>
           </View>
         </View>
@@ -278,6 +309,10 @@ const styles = StyleSheet.create({
     color: '#333'
   },
   up: {
+    fontSize: 22,
+    color: '#ed7b66'
+  },
+  down: {
     fontSize: 22,
     color: '#333'
   },
