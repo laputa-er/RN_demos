@@ -9,7 +9,7 @@ import Icon from 'react-native-vector-icons/Ionicons'
 
 import * as request from '../common/request'
 import config from '../common/config'
-
+import Detail from './detail'
 import {
 	AlertIOS,
 	RefreshControl,
@@ -69,7 +69,7 @@ class Item extends Component {
 	render() {
 		const row = this.state.row
 		return (
-			<TouchableHighlight>
+			<TouchableHighlight onPress={this.props.onSelect}>
         <View style={styles.item}>
           <Text style={styles.itemTitle}>{row.title}</Text>
           <Image
@@ -118,6 +118,16 @@ export default class List extends Component {
     }
   }
 
+	_loadPage(row) {
+		this.props.navigator.push({
+			name: 'detail',
+			component: Detail,
+			params: {
+				row: row
+			}
+		})
+	}
+
 	_renderFooter() {
 		// 至少加载过一次，而且所有列表数据都加载过来了
 		if (!this._hasMore() && cachedResults.total !== 0) {
@@ -135,7 +145,7 @@ export default class List extends Component {
 	}
 
   _renderRow(row) {
-    return <Item row={row} />
+    return <Item row={row} onSelect={() => this._loadPage(row)}/>
   }
 	
 	componentDidMount() {

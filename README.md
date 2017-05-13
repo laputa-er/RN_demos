@@ -7,3 +7,4 @@
 + [mockjs](https://www.npmjs.com/package/mockjs): 将来自 Rap 的规则转换为数据。
 + [query-string](https://www.npmjs.com/package/query-string)
 + [lodash](https://www.npmjs.com/package/lodash)
++ [react-native-deprecated-custom-components](https://www.npmjs.com/package/react-native-deprecated-custom-components)
