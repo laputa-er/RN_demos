@@ -8,7 +8,13 @@ import React, { Component } from 'react'
 import Video from 'react-native-video'
 import Icon from 'react-native-vector-icons/Ionicons'
 
+import * as request from '../common/request'
+import config from '../common/config'
+
 import {
+	ListView,
+	Image,
+	ScrollView,
 	TouchableOpacity,
 	ActivityIndicator,
 	Dimensions,
@@ -22,7 +28,14 @@ const width = Dimensions.get('window').width
 export default class Detail extends Component {
 	constructor(props) {
 		super(props)
+
+		const ds = new ListView.DataSource({
+			rowHasChanged: (r1, r2) => r1 !== r2
+		})
+
 		this.state = {
+			dataSource: ds.cloneWithRows([]),
+
 			videoOk: true,
 			paused: false,
 			playing: false,
@@ -116,6 +129,46 @@ export default class Detail extends Component {
 		}
 	}
 
+	componentDidMount() {
+		this._fetchData()
+	}
+
+	_fetchData() {
+		const url = config.api.base + config.api.comment
+		request.get(url, {
+			id: 124,
+			accessToken: '123a'
+		})
+		.then(data => {
+			if (data && data.success) {
+				const comments = data.data
+				if (comments && comments.length > 0) {
+					this.setState({
+						comments,
+						dataSource: this.state.dataSource.cloneWithRows(comments)
+					})
+				}
+			}
+		})
+		.catch(err => {
+			console.log(err)
+		})
+	}
+
+	_renderRow(row) {
+		return (
+			<View key={row._id} style={styles.replyBox}>
+				<Image
+					style={styles.replyAvatar}
+					source={{uri: row.replyBy.avatar}}/>
+				<View style={styles.reply}>
+					<Text style={styles.replyNickName}>{row.replyBy.nickName}</Text>
+					<Text style={styles.replyContent}>{row.content}</Text>
+				</View>
+			</View>
+		)
+	}
+
   render() {
 		const data = this.props.data
     return (
@@ -185,6 +238,26 @@ export default class Detail extends Component {
 						<View style={[styles.progressBar, {width: width * this.state.videoProgress}]}></View>
 					</View>
 				</View>
+				<ScrollView
+					enableEmptySections={true}
+					showsVerticalScrollIndicator={false}
+					automaticallyAdjustContentInsets={false}
+					style={styles.scrollView}>
+					<View style={styles.infoBox}>
+						<Image style={styles.avatar} source={{uri: data.author.avatar}} />
+						<View style={styles.descBox}>
+							<Text style={styles.nickName}>{data.author.nickName}</Text>
+							<Text style={styles.title}>{data.title}</Text>
+						</View>
+					</View>
+					<ListView
+						dataSource={this.state.dataSource}
+						renderRow={this._renderRow.bind(this)}
+						enableEmptySections={true}
+						showsVerticalScrollIndicator={false}
+						automaticallyAdjustContentInsets={false}
+					/>
+				</ScrollView>
       </View>
     )
   }
@@ -226,7 +299,7 @@ const styles = StyleSheet.create({
 	failText: {
 		position: 'absolute',
 		left: 0,
-		top: 180,
+		top: 90,
 		width,
 		color: '#fff',
 		textAlign: 'center',
@@ -236,7 +309,7 @@ const styles = StyleSheet.create({
 	loading: {
 		position: 'absolute',
 		left: 0,
-		top: 140,
+		top: 80,
 		width,
 		alignSelf: 'center',
 		backgroundColor: 'transparent'
@@ -248,12 +321,12 @@ const styles = StyleSheet.create({
   },
 	videoBox: {
 		width,
-		height: 360,
+		height: width * 0.56,
 		backgroundColor: '#000'
 	},
 	video: {
 		width,
-		height: 360,
+		height: width * 0.56,
 		backgroundColor: '#000'
 	},
 	progressBox: {
@@ -268,7 +341,7 @@ const styles = StyleSheet.create({
 	},
 	playIcon: {
 		position: 'absolute',
-		top: 140,
+		top: 90,
 		left: width / 2 - 30,
 		width: 60,
 		height: 60,
@@ -289,7 +362,7 @@ const styles = StyleSheet.create({
 	},
 	resumeIcon: {
 		position: 'absolute',
-		top: 140,
+		top: 80,
 		left: width / 2 - 30,
 		width: 60,
 		height: 60,
@@ -300,5 +373,51 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 		borderRadius: 30,
 		color: '#ed7b66'
+	},
+	infoBox: {
+		width,
+		flexDirection: 'row',
+		justifyContent: 'center',
+		marginTop: 10
+	},
+	avatar: {
+		width: 60,
+		height: 60,
+		marginRight: 10,
+		marginLeft: 10,
+		borderRadius: 30
+	},
+	descBox: {
+		flex: 1
+	},
+	nickname: {
+		fontSize: 18
+	},
+	title: {
+		marginTop: 8,
+		fontSize: 16,
+		color: '#666'
+	},
+	replyBox: {
+		flexDirection: 'row',
+		justifyContent: 'flex-start',
+		marginTop: 10
+	},
+	replyAvatar: {
+		width: 40,
+		height: 40,
+		marginRight: 10,
+		marginLeft: 10,
+		borderRadius: 20
+	},
+	replyNickName: {
+		color: '#666'
+	},
+	replyContent: {
+		marginTop: 4,
+		color: '#666'
+	},
+	reply: {
+		flex: 1
 	}
 })
