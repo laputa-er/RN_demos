@@ -28,6 +28,50 @@ const cachedResults = {
 	total: 0
 }
 
+class Item extends Component {
+	constructor(props) {
+		super(props)
+		this.state = {
+			row: props.row
+		}
+	}
+
+	render() {
+		const row = this.state.row
+		return (
+			<TouchableHighlight>
+        <View style={styles.item}>
+          <Text style={styles.itemTitle}>{row.title}</Text>
+          <Image
+            source={{uri: row.thumb}}
+            style={styles.thumb}
+          >
+            <Icon
+              name='ios-play'
+              size={28}
+              style={styles.itemPlay} />
+          </Image>
+          <View style={styles.itemFooter}>
+            <View style={styles.handleBox}>
+              <Icon
+                name='ios-heart-outline'
+                size={28}
+                style={styles.up} />
+              <Text style={styles.handleText}></Text>
+            </View>
+            <View style={styles.handleBox}>
+              <Icon
+                name='ios-chatboxes-outline'
+                size={28}
+                style={styles.commentIcon} />
+              <Text style={styles.handleText}></Text>
+            </View>
+          </View>
+        </View>
+      </TouchableHighlight>
+		)
+	}
+}
 
 export default class List extends Component {
   constructor(props) {
@@ -60,38 +104,7 @@ export default class List extends Component {
 	}
 
   _renderRow(row) {
-    return (
-      <TouchableHighlight>
-        <View style={styles.item}>
-          <Text style={styles.itemTitle}>{row.title}</Text>
-          <Image
-            source={{uri: row.thumb}}
-            style={styles.thumb}
-          >
-            <Icon
-              name='ios-play'
-              size={28}
-              style={styles.itemPlay} />
-          </Image>
-          <View style={styles.itemFooter}>
-            <View style={styles.handleBox}>
-              <Icon
-                name='ios-heart-outline'
-                size={28}
-                style={styles.up} />
-              <Text style={styles.handleText}></Text>
-            </View>
-            <View style={styles.handleBox}>
-              <Icon
-                name='ios-chatboxes-outline'
-                size={28}
-                style={styles.commentIcon} />
-              <Text style={styles.handleText}></Text>
-            </View>
-          </View>
-        </View>
-      </TouchableHighlight>
-    )
+    return <Item row={row} />
   }
 	
 	componentDidMount() {
