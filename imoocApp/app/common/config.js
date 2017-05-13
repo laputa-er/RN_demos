@@ -7,7 +7,8 @@ export default {
 		}
 	},
 	api: {
-		base: 'http://rapapi.org/mockjs/18917/',
-		creations: 'api/creations'
+		up: 'api/up',
+		creations: 'api/creations',
+		base: 'http://rapapi.org/mockjs/18917/'
 	}
 }
