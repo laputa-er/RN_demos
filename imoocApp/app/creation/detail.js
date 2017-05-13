@@ -12,6 +12,8 @@ import * as request from '../common/request'
 import config from '../common/config'
 
 import {
+	Modal,
+	TextInput,
 	ListView,
 	Image,
 	TouchableOpacity,
@@ -29,8 +31,6 @@ const cachedResults = {
 	total: 0
 }
 
-
-
 export default class Detail extends Component {
 	constructor(props) {
 		super(props)
@@ -40,6 +40,8 @@ export default class Detail extends Component {
 		})
 
 		this.state = {
+			data: this.props.data,
+
 			// comments
 			dataSource: ds.cloneWithRows([]),
 
@@ -59,7 +61,9 @@ export default class Detail extends Component {
 			muted: false,
 			rate: 1,
 
-			data: this.props.data
+			// modal
+			animationType: 'none',
+			modalVisible: false
 		}
 	}
 
@@ -140,14 +144,47 @@ export default class Detail extends Component {
 		this._fetchData()
 	}
 	
+	_focus() {
+		this._setModalVisible(true)
+	}
+
+	_blur() {
+
+	}
+
+	_closeModal() {
+		this._setModalVisible(false)
+	}
+
+	_setModalVisible(isVisible) {
+		this.setState({
+			modalVisible: isVisible
+		})
+	}
+
 	_renderHeader() {
 		const data = this.state.data
 		return (
-			<View style={styles.infoBox}>
-				<Image style={styles.avatar} source={{uri: data.author.avatar}} />
-				<View style={styles.descBox}>
-					<Text style={styles.nickName}>{data.author.nickName}</Text>
-					<Text style={styles.title}>{data.title}</Text>
+			<View style={styles.listHeader}>
+				<View style={styles.infoBox}>
+					<Image style={styles.avatar} source={{uri: data.author.avatar}} />
+					<View style={styles.descBox}>
+						<Text style={styles.nickName}>{data.author.nickName}</Text>
+						<Text style={styles.title}>{data.title}</Text>
+					</View>
+				</View>
+				<View style={styles.commentBox}>
+					<View style={styles.comment}>
+						<TextInput
+							placeholder='敢不敢评论一个...'
+							style={styles.content}
+							multiline={true}
+							onFocus={this._focus.bind(this)} />
+					</View>
+				</View>
+
+				<View style={styles.commentArea}>
+					<Text style={styles.commentTitle}>精彩评论</Text>
 				</View>
 			</View>
 		)
@@ -313,12 +350,51 @@ export default class Detail extends Component {
 					showsVerticalScrollIndicator={false}
 					automaticallyAdjustContentInsets={false}
 				/>
+				<Modal
+					animationType={'fade'}
+					visible={this.state.modalVisible}
+					onRequestClose={() => this._setModalVisible(false)}>
+					<View style={styles.modalContainer}>
+						<Icon
+							onPress={this._closeModal.bind(this)}
+							name='ios-close-outline'
+							style={styles.closeIcon}
+						/>
+						<View style={styles.commentBox}>
+							<View style={styles.comment}>
+								<TextInput
+									placeholder='敢不敢评论一个...'
+									style={styles.content}
+									multiline={true}
+									onFocus={this._focus.bind(this)}
+									onBlur={this._blur.bind(this)}
+									defaultValue={this.state.content}
+									onChangeText={text => {
+										this.setState({
+											content: text
+										})
+									}} />
+							</View>
+						</View>
+					</View>
+
+				</Modal>
       </View>
     )
   }
 }
 
 const styles = StyleSheet.create({
+	modalContainer: {
+		flex: 1,
+		paddingTop: 45,
+		backgroundColor: '#fff'
+	},
+	closeIcon: {
+		alignSelf: 'center',
+		fontSize: 30,
+		color: '#ee753c'
+	},
 	header: {
 		flexDirection: 'row',
 		justifyContent: 'center',
@@ -481,5 +557,32 @@ const styles = StyleSheet.create({
 	loadingText: {
 		color: '#777',
 		textAlign: 'center'
+	},
+	listHeader: {
+		width,
+		marginTop: 10
+	},
+	commentBox: {
+		marginTop: 10,
+		marginBottom: 10,
+		padding: 8,
+		width
+	},
+	content: {
+		paddingLeft: 2,
+		color: '#333',
+		borderWidth: 1,
+		borderColor: '#ddd',
+		borderRadius: 4,
+		fontSize: 14,
+		height: 80
+	},
+	commentArea: {
+		width,
+		paddingBottom: 6,
+		paddingLeft: 10,
+		paddingRight: 10,
+		borderBottomWidth: 1,
+		borderBottomColor: '#eee'
 	}
 })
