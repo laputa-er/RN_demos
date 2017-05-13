@@ -9,3 +9,6 @@
 + [lodash](https://www.npmjs.com/package/lodash)
 + [react-native-deprecated-custom-components](https://www.npmjs.com/package/react-native-deprecated-custom-components)
 + [react-native-video](https://www.npmjs.com/package/react-native-video)
+
+## 调试
+[react-devtools](http://reactnative.cn/docs/0.44/debugging.html)
