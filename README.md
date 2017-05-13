@@ -8,3 +8,4 @@
 + [query-string](https://www.npmjs.com/package/query-string)
 + [lodash](https://www.npmjs.com/package/lodash)
 + [react-native-deprecated-custom-components](https://www.npmjs.com/package/react-native-deprecated-custom-components)
++ [react-native-video](https://www.npmjs.com/package/react-native-video)
