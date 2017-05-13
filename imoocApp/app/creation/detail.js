@@ -23,6 +23,7 @@ export default class Detail extends Component {
 	constructor(props) {
 		super(props)
 		this.state = {
+			videoOk: true,
 			paused: false,
 			playing: false,
 			videoLoaded: false,
@@ -83,11 +84,16 @@ export default class Detail extends Component {
 	}
 
 	_onError(err) {
+		if (this.state.videoOk) {
+			this.setState({
+				videoOk: false
+			})
+		}
 		console.log(err)
 		console.log('error')
 	}
 
-	_backToList() {
+	_pop() {
 		this.props.navigator.pop()
 	}
 
@@ -114,7 +120,17 @@ export default class Detail extends Component {
 		const data = this.props.data
     return (
       <View style={styles.container}>
-        <Text onPress={this._backToList.bind(this)}>详情页面{data._id}</Text>
+				<View style={styles.header}>
+					<TouchableOpacity
+						style={styles.backBox}
+						onPress={this._pop.bind(this)}>
+						<Icon
+							name='ios-arrow-back'
+							style={styles.backIcon}/>
+						<Text style={styles.backText}>返回</Text>
+					</TouchableOpacity>
+        	<Text onPress={this._pop.bind(this)}>详情页面{data._id}</Text>
+				</View>
 				<View style={styles.videoBox}>
 					<Video
 						ref='videoPlayer'
@@ -133,6 +149,9 @@ export default class Detail extends Component {
 						onEnd={this._onEnd.bind(this)}
 						onError={this._onError.bind(this)}
 					/>
+					{
+						!this.state.videoOk && <Text style={styles.failText}>视频出错了！很抱歉</Text>
+					}
 					{
 						!this.state.videoLoaded && <ActivityIndicator color='#ee735c' style={styles.loading}/>
 					}
@@ -172,6 +191,48 @@ export default class Detail extends Component {
 }
 
 const styles = StyleSheet.create({
+	header: {
+		flexDirection: 'row',
+		justifyContent: 'center',
+		alignItems: 'center',
+		width,
+		height: 64,
+		paddingTop: 20,
+		paddingLeft: 10,
+		borderBottomWidth: 1,
+		borderColor: 'rgba(0, 0, 0, 0.1)',
+		backgroundColor: '#fff'
+	},
+	backBox: {
+		position: 'absolute',
+		left: 12,
+		top: 32,
+		width: 50,
+		flexDirection: 'row',
+		alignItems: 'center'
+	},
+	headerTitle: {
+		width: width - 120,
+		textAlign: 'center'
+	},
+	backIcon: {
+		color: '#999',
+		fontSize: 20,
+		marginRight: 5
+	},
+	backText: {
+		color: '#999'
+	},
+	failText: {
+		position: 'absolute',
+		left: 0,
+		top: 180,
+		width,
+		color: '#fff',
+		textAlign: 'center',
+		alignSelf: 'center',
+		backgroundColor: 'transparent'
+	},
 	loading: {
 		position: 'absolute',
 		left: 0,
