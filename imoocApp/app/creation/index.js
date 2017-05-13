@@ -123,7 +123,7 @@ export default class List extends Component {
 			name: 'detail',
 			component: Detail,
 			params: {
-				row: row
+				data: row
 			}
 		})
 	}
