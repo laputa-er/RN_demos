@@ -11,15 +11,23 @@ import * as request from '../common/request'
 import config from '../common/config'
 
 import {
+	RefreshControl,
   StyleSheet,
   View,
   Text,
   ListView,
   TouchableHighlight,
   Image,
-  Dimensions
+  Dimensions,
+	ActivityIndicator
 } from 'react-native' 
 const width = Dimensions.get('window').width
+const cachedResults = {
+	nextPage: 1,
+	items: [],
+	total: 0
+}
+
 
 export default class List extends Component {
   constructor(props) {
@@ -29,11 +37,29 @@ export default class List extends Component {
     })
 
     this.state = {
+			isRefreshing: false,
+			isLoadingMore: false,
       dataSource: ds.cloneWithRows([])
     }
   }
 
-  renderRow(row) {
+	_renderFooter() {
+		// 至少加载过一次，而且所有列表数据都加载过来了
+		if (!this._hasMore() && cachedResults.total !== 0) {
+			return (
+				<View style={styles.loadingMore}>
+					<Text style={styles.loadingText}>没有更多了</Text>
+				</View>
+			)
+		}
+		// 没有在加载，返回一个空元素
+		if (!this.state.isLoadingTail) {
+			return <View style={styles.loadingMore} />
+		}
+		return <ActivityIndicator style={styles.loadingMore} />
+	}
+
+  _renderRow(row) {
     return (
       <TouchableHighlight>
         <View style={styles.item}>
@@ -69,21 +95,79 @@ export default class List extends Component {
   }
 	
 	componentDidMount() {
-		this._fetchData()
+		this._fetchData(1)
 	}
 
-	_fetchData() {
+	_onRefresh() {
+		if (!this._hasMore() || this.state.isRefreshing) {
+			return
+		}
+		this.setState({
+			isRefreshing: true
+		})
+		this._fetchData(0)
+	}
+
+	_hasMore() {
+		return cachedResults.items.length !== cachedResults.total
+	}
+
+	_fetchMoreData() {
+		if (!this._hasMore() || this.state.isLoadingTail) {
+			return
+		}
+		
+		this._fetchData(cachedResults.nextPage)
+	}
+
+	_fetchData(page) {
+		if (page === 0) {
+			this.setState({
+				isRefreshing: true
+			})
+		}
+		else {
+			this.setState({
+				isLoadingTail: true
+			})
+		}
+
 		request.get(config.api.base + config.api.creations, {
-			accessToken: 12345
+			accessToken: '12345',
+			page
 		})
 		.then(data => {
 			if (data.success) {
-				this.setState({
-					dataSource: this.state.dataSource.cloneWithRows(data.data)
-				})
+				let items = cachedResults.items.slice()
+				if (page === 0) {
+					cachedResults.items = data.data.concat(items)
+					this.setState({
+						isRefreshing: false,
+						dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
+					})
+				}
+				else {
+					cachedResults.items = items.concat(data.data)
+					cachedResults.nextPage++
+					this.setState({
+						isLoadingTail: false,
+						dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
+					})
+				}
+				cachedResults.total = data.total
 			}
 		})
 		.catch(error => {
+			if (page === 0) {
+				this.setState({
+					isRefreshing: false
+				})
+			}
+			else {
+				this.setState({
+					isLoadingTail: false
+				})
+			}
 			console.error(error)
 		})
 	}
@@ -95,9 +179,21 @@ export default class List extends Component {
           <Text style={styles.headerTitle}>列表页面</Text>
         </View>
         <ListView
+					refreshControl={
+						<RefreshControl
+							refreshing={this.state.isRefreshing}
+							onRefresh={this._onRefresh.bind(this)}
+							tintColor='#ff6600'
+							title='拼命加载中'
+						/>
+					}
           dataSource={this.state.dataSource}
-          renderRow={this.renderRow}
+          renderRow={this._renderRow.bind(this)}
+					renderFooter={this._renderFooter.bind(this)}
+					onEndReached={this._fetchMoreData.bind(this)}
+					onEndReachedThreshold={20}
           enableEmptySections={true}
+					showsVerticalScrollIndicator={false}
           automaticallyAdjustContentInsets={false}
         />
       </View>
@@ -175,5 +271,12 @@ const styles = StyleSheet.create({
   commentIcon: {
     fontSize: 22,
     color: '#333'
-  }
+  },
+	loadingMore: {
+		marginVertical: 20
+	},
+	loadingText: {
+		color: '#777',
+		textAlign: 'center'
+	}
 })
