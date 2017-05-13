@@ -9,6 +9,7 @@ import Video from 'react-native-video'
 import Icon from 'react-native-vector-icons/Ionicons'
 
 import {
+	TouchableOpacity,
 	ActivityIndicator,
 	Dimensions,
   StyleSheet,
@@ -22,6 +23,7 @@ export default class Detail extends Component {
 	constructor(props) {
 		super(props)
 		this.state = {
+			paused: false,
 			playing: false,
 			videoLoaded: false,
 			
@@ -44,22 +46,22 @@ export default class Detail extends Component {
 		console.log('load start')
 	}
 
-	_onLoad() {
+	_onLoad(data) {
 		console.log('loads')
+		this.setState({
+			videoTotal: data.duration
+		})
 	}
 
 	_onProgress(data) {
-		if (!this.state.videoLoaded) {
-			this.setState({
-				videoLoaded: true
-			})
-		}
 		const duration = data.playableDuration
 		const currentTime = data.currentTime
-		const percent = Number((currentTime / duration).toFixed(2))
+		const percent = Number((currentTime / this.state.videoTotal).toFixed(2))
 
+		if (duration === 0) {
+			return
+		}
 		let newState = {
-			videoTotal: duration,
 			currentTime: Number(data.currentTime.toFixed(2)),
 			videoProgress: percent
 		}
@@ -92,6 +94,21 @@ export default class Detail extends Component {
 	_rePlay() {
 		this.refs.videoPlayer.seek(0)
 	}
+	_pause() {
+		if (!this.state.paused) {
+			this.setState({
+				paused: true
+			})
+		}
+	}
+
+	_resume() {
+		if (this.state.paused) {
+			this.setState({
+				paused: false
+			})
+		}
+	}
 
   render() {
 		const data = this.props.data
@@ -104,7 +121,7 @@ export default class Detail extends Component {
 						source={{uri: data.video}}
 						style={styles.video}
 						volum={5}
-						pause={false}
+						paused={this.state.paused}
 						rate={this.state.rate}
 						muted={this.state.muted}
 						resizeMode={this.state.resizeMode}
@@ -126,6 +143,23 @@ export default class Detail extends Component {
 								name='ios-play'
 								size={48}
 								style={styles.playIcon} />
+						: null
+					}
+					{
+						this.state.videoLoaded && this.state.playing
+						? <TouchableOpacity
+								onPress={this._pause.bind(this)}
+								style={styles.pauseBtn}>
+								{
+									this.state.paused
+									? <Icon
+											size={48}
+											onPress={this._resume.bind(this)}
+											name='ios-play'
+											style={styles.resumeIcon} />
+									: <Text></Text>
+								}
+							</TouchableOpacity>
 						: null
 					}
 					<View style={styles.progressBox}>
@@ -172,6 +206,27 @@ const styles = StyleSheet.create({
 		backgroundColor: '#ff6600'
 	},
 	playIcon: {
+		position: 'absolute',
+		top: 140,
+		left: width / 2 - 30,
+		width: 60,
+		height: 60,
+		paddingTop: 8,
+		paddingLeft: 22,
+		backgroundColor: 'transparent',
+		borderColor: '#fff',
+		borderWidth: 1,
+		borderRadius: 30,
+		color: '#ed7b66'
+	},
+	pauseBtn: {
+		position: 'absolute',
+		left: 0,
+		top: 0,
+		width,
+		height: 360
+	},
+	resumeIcon: {
 		position: 'absolute',
 		top: 140,
 		left: width / 2 - 30,
