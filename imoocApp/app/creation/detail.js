@@ -7,11 +7,13 @@
 import React, { Component } from 'react'
 import Video from 'react-native-video'
 import Icon from 'react-native-vector-icons/Ionicons'
+import Button from 'react-native-button'
 
 import * as request from '../common/request'
 import config from '../common/config'
 
 import {
+	AlertIOS,
 	Modal,
 	TextInput,
 	ListView,
@@ -63,7 +65,9 @@ export default class Detail extends Component {
 
 			// modal
 			animationType: 'none',
-			modalVisible: false
+			modalVisible: false,
+			isSending: false,
+			content: ''
 		}
 	}
 
@@ -257,6 +261,54 @@ export default class Detail extends Component {
 		})
 	}
 
+	_submit() {
+		if (!this.state.content) {
+			return  AlertIOS.alert('留言不能为空！')
+		}
+		if (this.state.isSending) {
+			return AlertIOS.alert('正在评论中！')
+		}
+		this.setState({
+			isSending: true
+		}, () => {
+			const body = {
+				accessToken: 'abc',
+				creation: '1235',
+				content: this.state.content
+			}
+			const url = config.api.base + config.api.comment
+			request.post(url, body)
+				.then(data => {
+					if (data && data.success) {
+						let items = cachedResults.items.slice()
+						items = [{
+							content: this.state.content,
+							replyBy: {
+								nickName: '狗狗说',
+								avatar: 'http://dummyimage.com/640x640/7939ce)'
+							}
+						}].concat(items)
+						cachedResults.items = items
+						cachedResults.total = cachedResults.total + 1
+						this._setModalVisible(false)
+						this.setState({
+							isSending: false,
+							dataSource: this.state.dataSource.cloneWithRows(cachedResults.items),
+							content: ''
+						})
+					}
+				})
+				.catch(err => {
+					console.log(err)
+					this.setState({
+						isSending: false
+					})
+					this._setModalVisible(false)
+					AlertIOS.alert('留言失败，稍后重试!')
+				})
+		})
+	}
+
 	_renderRow(row) {
 		return (
 			<View key={row._id} style={styles.replyBox}>
@@ -376,6 +428,7 @@ export default class Detail extends Component {
 									}} />
 							</View>
 						</View>
+						<Button style={styles.submitBtn} onPress={this._submit.bind(this)}>评论</Button>
 					</View>
 
 				</Modal>
@@ -393,6 +446,17 @@ const styles = StyleSheet.create({
 	closeIcon: {
 		alignSelf: 'center',
 		fontSize: 30,
+		color: '#ee753c'
+	},
+	submitBtn: {
+		width: width - 20,
+		padding: 16,
+		marginTop: 20,
+		marginLeft: 10,
+		borderWidth: 1,
+		borderColor: '#ee753c',
+		borderRadius: 4,
+		fontSize: 18,
 		color: '#ee753c'
 	},
 	header: {
