@@ -10,6 +10,7 @@
 + [react-native-deprecated-custom-components](https://www.npmjs.com/package/react-native-deprecated-custom-components)
 + [react-native-video](https://www.npmjs.com/package/react-native-video)
 + [react-native-button](https://www.npmjs.com/package/react-native-button)
++ [react-native-sk-countdown](https://github.com/shigebeyond/react-native-sk-countdown)(该组件和 RN 0.44 不兼容，所以我修改了下，提了 [pull erquest](https://github.com/shigebeyond/react-native-sk-countdown/pull/11))
 
 ## 调试
 + [react-devtools](http://reactnative.cn/docs/0.44/debugging.html)
