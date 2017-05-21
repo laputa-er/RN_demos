@@ -1,8 +1,8 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
+// 
+// index.ios.js
+// ==
+// @author mengqingshen_sean@outlook.com
+// 
 
 // 原生模块
 import React, { Component } from 'react'
@@ -12,6 +12,7 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import List from './app/creation/index'
 import Edit from './app/edit/index'
 import Account from './app/account/index'
+import Login from './app/account/login'
 
 // 方法、接口或相关变量声明
 import {
@@ -19,9 +20,9 @@ import {
   StyleSheet,
   View,
   Text,
-  TabBarIOS
+  TabBarIOS,
+  AsyncStorage
 } from 'react-native' 
-
 import { Navigator } from 'react-native-deprecated-custom-components'
 
 
@@ -29,11 +30,51 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      selectedTab: 'account'
+      selectedTab: 'list',
+      logined: false,
+      user: null
     }
   }
 
+  componentDidMount() {
+    this._asyncAppStatus()
+  }
+
+  _asyncAppStatus() {
+    AsyncStorage.getItem('user')
+      .then(data => {
+        let user
+        const newState = {}
+        if (data) {
+          user = JSON.parse(data)
+        }
+
+        if (user && user.accessToken) {
+          newState.user = user
+          newState.logined = true
+        }
+        else {
+          newState.logined = false
+        }
+        this.setState(newState)
+      })
+  }
+
+  _afterLogin(user) {
+    user = JSON.stringify(user)
+    AsyncStorage.setItem('user', user)
+      .then(() => {
+        this.setState({
+          logined: true,
+          user
+        })
+      })
+	}
+
   render() {
+    if (!this.state.logined) {
+      return <Login afterLogin={this._afterLogin.bind(this)}/>
+    }
     return (
       <TabBarIOS tintColor="#ee735c">
         <Icon.TabBarItem
@@ -78,14 +119,14 @@ class App extends Component {
           selected={this.state.selectedTab === 'account'}
           onPress={() => {
             this.setState({
-              selectedTab: 'account',
+              selectedTab: 'list',
               presses: this.state.presses + 1
             });
           }}>
           <Account />
         </Icon.TabBarItem>
       </TabBarIOS>
-    );
+    )
   }
 }
 
