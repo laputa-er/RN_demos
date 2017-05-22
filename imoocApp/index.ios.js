@@ -30,7 +30,7 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      selectedTab: 'list',
+      selectedTab: 'account',
       logined: false,
       user: null
     }
@@ -123,7 +123,7 @@ class App extends Component {
               presses: this.state.presses + 1
             });
           }}>
-          <Account />
+          <Account user={this.state.user}/>
         </Icon.TabBarItem>
       </TabBarIOS>
     )
