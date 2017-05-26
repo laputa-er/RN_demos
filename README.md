@@ -13,6 +13,7 @@
 + [react-native-sk-countdown](https://github.com/shigebeyond/react-native-sk-countdown)(该组件和 RN 0.44 不兼容，所以我修改了下，提了 [pull erquest](https://github.com/shigebeyond/react-native-sk-countdown/pull/11))
 + [react-native-image-picker](https://github.com/react-community/react-native-image-picker)
 + [sha1](https://www.npmjs.com/package/sha1)
++ [react-native-progress](https://github.com/oblador/react-native-progress)
 
 ## 调试
 + [react-devtools](http://reactnative.cn/docs/0.44/debugging.html)
