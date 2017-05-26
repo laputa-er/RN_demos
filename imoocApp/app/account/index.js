@@ -8,6 +8,7 @@ import React, { Component } from 'react'
 import Icon from 'react-native-vector-icons/Ionicons'
 import ImagePicker from 'react-native-image-picker'
 import sha1 from 'sha1'
+import * as Progress from 'react-native-progress'
 
 import * as request from '../common/request'
 import config from '../common/config'
@@ -47,6 +48,12 @@ const CLOUDINARY = {
 }
 
 function avatar(id, type) {
+  if (id.indexOf('http') > -1) {
+    return id
+  }
+  if (id.indexOf('data:image') > -1) {
+    return id
+  }
   return CLOUDINARY.base + '/' + type + '/upload/' + id
 }
 
@@ -55,7 +62,9 @@ export default class Account extends Component {
     super(props)
     let user = props.user || {}
     this.state = {
-      user
+      user,
+      avatarProgress: 0,
+      avatarUploading: false
     }
   }
 
@@ -125,6 +134,11 @@ export default class Account extends Component {
     const xhr = new XMLHttpRequest()
     const url = CLOUDINARY.image
 
+    this.setState({
+      avatarProgress: 0,
+      avatarUploading: true
+    })
+
     xhr.open('POST', url)
     xhr.onload = () => {
       if (xhr.status !== 200) {
@@ -149,13 +163,47 @@ export default class Account extends Component {
 
       if (response && response.public_id) {
         const user = this.state.user
-        user.avatar = avatar(response.public_id, 'image')
+        user.avatar = response.public_id
         this.setState({
+          avatarUploading: false,
+          avatarProgress: 0,
           user
         })
+
+        this._asyncUser(true)
+      }
+    }
+    
+    // 获取图片上传进度
+    if (xhr.upload) {
+      xhr.upload.onprogress = event => {
+        if (event.lengthComputable) {
+          const percent = Number((event.loaded / event.total).toFixed(2))
+          this.setState({
+            avatarProgress: percent
+          })
+        }
       }
     }
     xhr.send(body)
+  }
+
+  // 将用户的当前信息同步到服务器
+  _asyncUser(isAvatar) {
+    const user = this.state.user
+    if (user && user.accessToken) {
+      const url = config.api.base + config.api.update
+      request.post(url, user)
+        .then(data => {
+          if (data && data.success) {
+            const user = data.data
+            if (isAvatar) { AlertIOS.alert('头像更新成功') }
+            this.setState({ user }, () => {
+              AsyncStorage.setItem('user', JSON.stringify(user))
+            })
+          }
+        })
+    }
   }
 
   render() {
@@ -163,7 +211,7 @@ export default class Account extends Component {
     return (
       <View style={styles.container}>
         <View style={styles.toolbar}>
-          <Text style={styles.toolbarTitle}>我的账户</Text>
+          <Text style={styles.toolbarTitle}>狗狗的账户</Text>
         </View>
 
         {
@@ -172,12 +220,20 @@ export default class Account extends Component {
               onPress={this._pickPhoto.bind(this)}
               style={styles.avatarContainer}>
               <Image
-                source={{uri: user.avatar}}
+                source={{uri: avatar(user.avatar, 'image')}}
                 style={styles.avatarContainer}>
                 <View style={styles.abatarBox}>
-                  <Image
-                    source={{uri: user.avatar}}
-                    style={styles.avatar} />
+                  {
+                    this.state.avatarUploading
+                    ? <Progress.Circle
+                        showText={true}
+                        size={75}
+                        color={'#ee735c'}
+                        progress={this.state.avatarProgress} />
+                    : <Image
+                        source={{uri: avatar(user.avatar, 'image')}}
+                        style={styles.avatar} />
+                  }
                 </View>
                 <Text style={styles.avatarTip}>戳这里换头像</Text>
               </Image>
@@ -187,10 +243,17 @@ export default class Account extends Component {
               style={styles.avatarContainer}>
               <Text style={styles.avatarTip}>添加狗狗头像</Text>
               <View style={styles.avatarBox}>
-                <Icon
-                  name='ios-cloud-upload-outline'
-                  style={styles.plusIcon}>
-                </Icon>
+                {
+                  this.state.avatarUploading
+                  ? <Progress.Circle
+                      showText={true}
+                      size={75}
+                      color={'#ee735c'}
+                      progress={this.state.avatarProgress} />
+                  : <Icon
+                      name='ios-cloud-upload-outline'
+                      style={styles.plusIcon} />
+                }
               </View>
             </TouchableOpacity>
         }
