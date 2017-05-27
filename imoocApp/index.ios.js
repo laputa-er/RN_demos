@@ -71,6 +71,14 @@ class App extends Component {
       })
 	}
 
+  _logout() {
+    AsyncStorage.removeItem('user')
+    this.setState({
+      logined: false,
+      user: null
+    })
+  }
+
   render() {
     if (!this.state.logined) {
       return <Login afterLogin={this._afterLogin.bind(this)}/>
@@ -123,7 +131,7 @@ class App extends Component {
               presses: this.state.presses + 1
             });
           }}>
-          <Account user={this.state.user}/>
+          <Account user={this.state.user} logout={this._logout.bind(this)}/>
         </Icon.TabBarItem>
       </TabBarIOS>
     )
