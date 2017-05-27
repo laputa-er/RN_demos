@@ -6,6 +6,7 @@
 
 import React, { Component } from 'react'
 import Icon from 'react-native-vector-icons/Ionicons'
+import Button from 'react-native-button'
 import ImagePicker from 'react-native-image-picker'
 import sha1 from 'sha1'
 import * as Progress from 'react-native-progress'
@@ -21,7 +22,9 @@ import {
   TouchableOpacity,
   Dimensions,
   Image,
-  AlertIOS
+  AlertIOS,
+  Modal,
+  TextInput
 } from 'react-native' 
 const width = Dimensions.get('window').width
 const photoOptions = {
@@ -64,8 +67,16 @@ export default class Account extends Component {
     this.state = {
       user,
       avatarProgress: 0,
-      avatarUploading: false
+      avatarUploading: false,
+      modalVisible: false
     }
+  }
+
+  _edit() {
+    this.setState({ modalVisible: true })
+  }
+  _closeModal() {
+    this.setState({ modalVisible: false })
   }
 
   componentDidMount() {
@@ -199,11 +210,29 @@ export default class Account extends Component {
             const user = data.data
             if (isAvatar) { AlertIOS.alert('头像更新成功') }
             this.setState({ user }, () => {
+              this._closeModal()
               AsyncStorage.setItem('user', JSON.stringify(user))
             })
           }
         })
     }
+  }
+
+  _changeUserState(key, value) {
+    const user = this.state.user
+
+    user[key] = value
+
+    this.setState({ user })
+  }
+  
+  _submit() {
+    const user = this.state.user
+    this._asyncUser()
+  }
+
+  _logout() {
+    this.props.logout()
   }
 
   render() {
@@ -212,6 +241,9 @@ export default class Account extends Component {
       <View style={styles.container}>
         <View style={styles.toolbar}>
           <Text style={styles.toolbarTitle}>狗狗的账户</Text>
+          <TouchableOpacity onPress={this._edit.bind(this)}>
+            <Text style={styles.toolbarExtra}>编辑</Text>
+          </TouchableOpacity>
         </View>
 
         {
@@ -257,6 +289,82 @@ export default class Account extends Component {
               </View>
             </TouchableOpacity>
         }
+        <Modal
+          animationType={'fade'}
+          visible={this.state.modalVisible}>
+          <View style={styles.modalContainer}>
+            <Icon
+              name='ios-close-outline'
+              style={styles.closeIcon}
+              onPress={this._closeModal.bind(this)}/>
+            <View style={styles.fieldItem}>
+              <Text style={styles.label}>昵称</Text>
+              <TextInput
+                placeholder={'狗狗的昵称'}
+                style={styles.inputField}
+                autoCapitalize={'none'}
+                autoCorrect={false}
+                defaultValue={user.nickname}
+                onChangeText={text => {
+                  this._changeUserState('nickname', text)
+                }}
+              />
+            </View>
+            <View style={styles.fieldItem}>
+              <Text style={styles.label}>品种</Text>
+              <TextInput
+                placeholder={'狗狗的品种'}
+                style={styles.inputField}
+                autoCapitalize={'none'}
+                autoCorrect={false}
+                defaultValue={user.breed}
+                onChangeText={text => {
+                  this._changeUserState('breed', text)
+                }}
+              />
+            </View>
+            <View style={styles.fieldItem}>
+              <Text style={styles.label}>年龄</Text>
+              <TextInput
+                placeholder={'狗狗的年龄'}
+                style={styles.inputField}
+                autoCapitalize={'none'}
+                autoCorrect={false}
+                defaultValue={user.age}
+                onChangeText={text => {
+                  this._changeUserState('age', text)
+                }}
+              />
+            </View>
+            <View style={styles.fieldItem}>
+              <Text style={styles.label}>性别</Text>
+              <Icon.Button
+                onPress={() => {
+                  this._changeUserState('gender', 'male')
+                }}
+                style={[
+                  styles.gender,
+                  user.gender === 'male' && styles.genderChecked
+                ]}
+                name='ios-paw'>男</Icon.Button>
+              <Icon.Button
+                onPress={() => {
+                  this._changeUserState('gender', 'female')
+                }}
+                style={[
+                  styles.gender,
+                  user.gender === 'female' && styles.genderChecked
+                ]}
+                name='ios-paw-outline'>女</Icon.Button>
+            </View>
+            <Button
+								style={styles.btn}
+								onPress={this._submit.bind(this)}>登录</Button>
+          </View>
+        </Modal>
+        <Button
+            style={styles.btn}
+            onPress={this._logout.bind(this)}>退出登录</Button>
       </View>
     )
   }
@@ -278,6 +386,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     fontWeight: '600'
+  },
+  toolbarExtra: {
+    position: 'absolute',
+    right: 10,
+    top: 0,
+    color: '#fff',
+    textAlign: 'right',
+    fontWeight: '600',
+    fontSize: 14
   },
   avatarContainer: {
     width,
@@ -311,5 +428,55 @@ const styles = StyleSheet.create({
     fontSize: 24,
     backgroundColor: '#fff',
     borderRadius: 8
-  }
+  },
+  modalContainer: {
+    flex: 1,
+    paddingTop: 50,
+    backgroundColor: '#fff'
+  },
+  fieldItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    height: 50,
+    paddingLeft: 15,
+    borderColor: '#eee',
+    borderBottomWidth: 1
+  },
+  label: {
+    color: '#ccc',
+    marginRight: 10
+  },
+  inputField: {
+    flex: 1,
+    height: 50,
+    color: '#666',
+    fontSize: 14
+  },
+  closeIcon: {
+    position: 'absolute',
+    width: 40,
+    height: 40,
+    fontSize: 32,
+    right: 20,
+    top: 30,
+    color: '#ee735c'
+  },
+  gender: {
+    backgroundColor: '#ccc'
+  },
+  genderChecked: {
+    backgroundColor: '#ee735c'
+  },
+	btn: {
+		marginTop: 25,
+    marginLeft: 10,
+    marginRight: 10,
+		padding: 10,
+		backgroundColor: 'transparent',
+		borderColor: '#ee735c',
+		borderWidth: 1,
+		borderRadius: 4,
+		color: '#ee735c'
+	}
 })
