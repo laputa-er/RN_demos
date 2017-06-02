@@ -38,6 +38,9 @@ class Item extends Component {
 		}
 	}
 
+  /**
+   * 点赞
+   */
 	_up() {
 		const up = !this.state.up
 		const row = this.state.row
