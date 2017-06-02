@@ -43,7 +43,6 @@ const photoOptions = {
 const CLOUDINARY = {
   cloud_name: 'dox3udxny',
   api_key: '933482656862456',
-  api_secret: 'iKxq6NKzzog-a2VvEOUo54H-IKA',
   base: 'http://res.cloudinary.com/dox3udxny',
   image: 'https://api.cloudinary.com/v1_1/dox3udxny/image/upload',
   video: 'https://api.cloudinary.com/v1_1/dox3udxny/video/upload',
@@ -95,9 +94,11 @@ export default class Account extends Component {
 
   _pickPhoto() {
     ImagePicker.showImagePicker(photoOptions, res => {
+      // (1) 点击了取消
       if (res.didCancel) {
         return
       }
+      // (2) 选中了上传的图片
       const avatarData = 'data:image/jpeg;base64,' + res.data
       const timestamp = Date.now()
       const tags = 'app,avatar'
@@ -105,6 +106,7 @@ export default class Account extends Component {
       const signatureURL = config.api.base + config.api.signature
       const accessToken = this.state.user.accessToken
 
+      // 先从服务器获取签名，然后开始上传图片
       request.post(signatureURL, {
         accessToken,
         timestamp,
@@ -118,16 +120,11 @@ export default class Account extends Component {
       .then(data => {
         console.log(data)
         if (data && data.success) {
-          let signature = 'folder=' + folder
-                        + '&tags=' + tags
-                        + '&timestamp=' +  timestamp + CLOUDINARY.api_secret
-
-          signature = sha1(signature)
           
           const body = new FormData()
 
           body.append('folder', folder)
-          body.append('signature', signature)
+          body.append('signature', data.data)
           body.append('timestamp', timestamp)
           body.append('tags', tags)
           body.append('api_key', CLOUDINARY.api_key)
