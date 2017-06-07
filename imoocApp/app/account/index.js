@@ -40,15 +40,6 @@ const photoOptions = {
   }
 }
 
-const CLOUDINARY = {
-  cloud_name: 'dox3udxny',
-  api_key: '933482656862456',
-  base: 'http://res.cloudinary.com/dox3udxny',
-  image: 'https://api.cloudinary.com/v1_1/dox3udxny/image/upload',
-  video: 'https://api.cloudinary.com/v1_1/dox3udxny/video/upload',
-  audio: 'https://api.cloudinary.com/v1_1/dox3udxny/audio/upload'
-}
-
 function avatar(id, type) {
   if (id.indexOf('http') > -1) {
     return id
@@ -56,7 +47,14 @@ function avatar(id, type) {
   if (id.indexOf('data:image') > -1) {
     return id
   }
-  return CLOUDINARY.base + '/' + type + '/upload/' + id
+
+  // cloundary 的图片外链
+  if (id.indexOf('avatar/') > -1) {
+    return config.cloudinary.base + '/' + type + '/upload/' + id
+  }
+
+  // 七牛的图片外链
+  return 'http://or4wcdw2p.bkt.clouddn.com/' + id
 }
 
 export default class Account extends Component {
@@ -92,6 +90,20 @@ export default class Account extends Component {
       })
   }
 
+  _getQiniuToken() {
+    const accessToken = this.state.user.accessToken
+    const signatureURL = config.api.base + config.api.signature
+
+    // 先从服务器获取签名，然后开始上传图片
+    return request.post(signatureURL, {
+      cloud: 'qiniu',
+      accessToken
+    })
+    .catch(err => {
+      console.log(err)
+    })
+  }
+
   _pickPhoto() {
     ImagePicker.showImagePicker(photoOptions, res => {
       // (1) 点击了取消
@@ -100,47 +112,36 @@ export default class Account extends Component {
       }
       // (2) 选中了上传的图片
       const avatarData = 'data:image/jpeg;base64,' + res.data
-      const timestamp = Date.now()
-      const tags = 'app,avatar'
-      const folder = 'avatar'
-      const signatureURL = config.api.base + config.api.signature
-      const accessToken = this.state.user.accessToken
 
-      // 先从服务器获取签名，然后开始上传图片
-      request.post(signatureURL, {
-        accessToken,
-        timestamp,
-        folder,
-        tags,
-        type: 'avatar'
-      })
-      .catch(err => {
-        console.log(err)
-      })
-      .then(data => {
-        console.log(data)
-        if (data && data.success) {
-          
-          const body = new FormData()
+      const uri = res.uri
 
-          body.append('folder', folder)
-          body.append('signature', data.data)
-          body.append('timestamp', timestamp)
-          body.append('tags', tags)
-          body.append('api_key', CLOUDINARY.api_key)
-          body.append('resource_type', 'image')
-          body.append('file', avatarData)
+      this._getQiniuToken()
+        .then(data => {
+          if (data && data.success) {
+            const token = data.data.token
+            const key = data.data.key
+            const body = new FormData()
 
-          this._upload(body)
-        }
-      })
+            body.append('token', token)
+            body.append('key', key)
+            body.append('file', {
+              type: 'image/jpeg',
+              uri,
+              name: key
+            })
+
+            this._upload(body)
+          }
+        })
+      
       
     })
   }
 
   _upload(body) {
+    console.log(body)
     const xhr = new XMLHttpRequest()
-    const url = CLOUDINARY.image
+    const url = config.qiniu.upload
 
     this.setState({
       avatarProgress: 0,
@@ -169,9 +170,16 @@ export default class Account extends Component {
         console.log('parse fails')
       }
 
-      if (response && response.public_id) {
+      console.log(response)
+      if (response) {
         const user = this.state.user
-        user.avatar = response.public_id
+        if (response.public_id) {
+          user.avatar = response.public_id
+        }
+        
+        if (response.key) {
+          user.avatar = response.key
+        }
         this.setState({
           avatarUploading: false,
           avatarProgress: 0,
