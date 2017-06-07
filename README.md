@@ -14,6 +14,7 @@
 + [react-native-image-picker](https://github.com/react-community/react-native-image-picker)
 + [sha1](https://www.npmjs.com/package/sha1)
 + [react-native-progress](https://github.com/oblador/react-native-progress)
++ [uuid](https://www.npmjs.com/package/uuid)
 
 ## 调试
 + [react-devtools](http://reactnative.cn/docs/0.44/debugging.html)
