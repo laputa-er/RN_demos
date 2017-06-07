@@ -6,6 +6,17 @@ export default {
 			'Content-Type': 'application/json'
 		}
 	},
+	qiniu: {
+		upload: 'http://up-z1.qiniu.com'
+	},
+	cloudinary: {
+		cloud_name: 'dox3udxny',
+		api_key: '933482656862456',
+		base: 'http://res.cloudinary.com/dox3udxny',
+		image: 'https://api.cloudinary.com/v1_1/dox3udxny/image/upload',
+		video: 'https://api.cloudinary.com/v1_1/dox3udxny/video/upload',
+		audio: 'https://api.cloudinary.com/v1_1/dox3udxny/audio/upload'
+	},
 	api: {
 		// base: 'http://rapapi.org/mockjs/18917/',
 		base: 'http://localhost:1234/',
