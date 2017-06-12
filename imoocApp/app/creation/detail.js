@@ -59,7 +59,6 @@ export default class Detail extends Component {
 			// video player
 			repeat: false,
 			resizeMode: 'contain',
-
 			muted: false,
 			rate: 1,
 

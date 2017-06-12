@@ -96,6 +96,7 @@ export default class Account extends Component {
 
     // 先从服务器获取签名，然后开始上传图片
     return request.post(signatureURL, {
+      type: 'avatar',
       cloud: 'qiniu',
       accessToken
     })

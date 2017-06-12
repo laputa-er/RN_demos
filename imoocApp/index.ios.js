@@ -27,14 +27,11 @@ import { Navigator } from 'react-native-deprecated-custom-components'
 
 
 class App extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      selectedTab: 'account',
-      logined: false,
-      user: null
-    }
-  }
+  state = {
+    selectedTab: 'edit',
+    logined: false,
+    user: null
+  };
 
   componentDidMount() {
     this._asyncAppStatus()
