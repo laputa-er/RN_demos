@@ -48,13 +48,12 @@ export default class Edit extends Component {
     previewVideo: null,
 
     // video upload
-    video: null,
+    video: null, // 存储上传到七牛后返回的存储空间中的视频文件的相关信息
     videoUploaded: false,
     videoUploading: false,
     videoUploadedProgress: 0.01,
 
     // video loads
-    videoOk: true,
     paused: false,
     playing: false,
     videoLoaded: false,
@@ -179,6 +178,23 @@ export default class Edit extends Component {
           videoUploading: false,
           videoUploaded: true
         })
+
+        const videoURL = config.api.base + config.api.video
+        const accessToken = this.state.user.accessToken
+
+        request.post(videoURL, {
+          accessToken,
+          video: response
+        })
+        .catch(err => {
+          console.log(err)
+          AlertIOS.alert('视频同步出错，请重新上传！')
+        })
+        .then(data => {
+          if (!data || !data.success) {
+            AlertIOS.alert('视频同步出错，请重新上传@')
+          }
+        })
       }
     }
     
@@ -265,7 +281,11 @@ export default class Edit extends Component {
             this.state.previewVideo ? '点击按钮配音' : '理解狗狗，从配音开始'
           }
           </Text>
-          <Text style={styles.toolbarExtra} onPress={this._pickVideo.bind(this)}>更换视频</Text>
+          {
+            this.state.previewVideo && this.state.videoLoaded
+            ? <Text style={styles.toolbarExtra} onPress={this._pickVideo.bind(this)}>更换视频</Text>
+            : null
+          }
         </View>
         <View style={styles.page}>
           {
