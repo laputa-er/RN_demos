@@ -19,7 +19,7 @@ export default {
 	},
 	api: {
 		// base: 'http://rapapi.org/mockjs/18917/',
-		base: 'http://192.168.11.170:1234/',
+		base: 'http://127.0.0.1:1234/',
 		creations: 'api/creations',
 		up: 'api/up',
 		comment: 'api/comments',

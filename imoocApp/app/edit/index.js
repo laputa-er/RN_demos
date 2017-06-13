@@ -191,6 +191,7 @@ export default class Edit extends Component {
           AlertIOS.alert('视频同步出错，请重新上传！')
         })
         .then(data => {
+          console.log(data)
           if (!data || !data.success) {
             AlertIOS.alert('视频同步出错，请重新上传@')
           }
@@ -215,6 +216,7 @@ export default class Edit extends Component {
     const accessToken = this.state.user.accessToken
     const signatureURL = config.api.base + config.api.signature
 
+    console.log(signatureURL)
     // 先从服务器获取签名，然后开始上传视频
     return request.post(signatureURL, {
       cloud: 'qiniu',
@@ -239,6 +241,8 @@ export default class Edit extends Component {
 
       this._getQiniuToken()
       .then(data => {
+        console.log('getQIniuToken')
+        console.log(data)
         if (data && data.success) {
           const token = data.data.token
           const key = data.data.key
