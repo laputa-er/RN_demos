@@ -153,7 +153,6 @@ export default class Account extends Component {
     xhr.onload = () => {
       if (xhr.status !== 200) {
         AlertIOS.alert('请求失败')
-        console.log(xhr.responseText)
         return
       }
 
@@ -171,7 +170,6 @@ export default class Account extends Component {
         console.log('parse fails')
       }
 
-      console.log(response)
       if (response) {
         const user = this.state.user
         if (response.public_id) {
