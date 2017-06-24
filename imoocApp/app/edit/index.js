@@ -19,6 +19,8 @@ import {
 } from 'react-native' 
 import ImagePicker from 'react-native-image-picker'
 import Video from 'react-native-video'
+import CountDownText from '../components/CountDownText'
+import Icon from 'react-native-vector-icons/Ionicons'
 
 import * as request from '../common/request'
 import config from '../common/config'
@@ -54,8 +56,6 @@ export default class Edit extends Component {
     videoUploadedProgress: 0.01,
 
     // video loads
-    paused: false,
-    playing: false,
     videoLoaded: false,
     videoProgress: 0.01,
     videoTotal: 0,
@@ -66,14 +66,16 @@ export default class Edit extends Component {
     resizeMode: 'contain',
     muted: true,
     rate: 1,
+
+    // record
+    counting: false,
+    recording: false
   };
 
   _onLoadStart() {
-		console.log('load start')
 	}
 
 	_onLoad(data) {
-		console.log('loads')
 		this.setState({
 			videoTotal: data.duration
 		})
@@ -82,31 +84,40 @@ export default class Edit extends Component {
 	_onProgress(data) {
 		const duration = data.playableDuration
 		const currentTime = data.currentTime
-		const percent = Number((currentTime / this.state.videoTotal).toFixed(2))
-
-		if (duration === 0) {
-			return
-		}
-		let newState = {
-			currentTime: Number(data.currentTime.toFixed(2)),
-			videoProgress: percent
-		}
-		if (!this.state.videoLoaded) {
-			newState.videoLoaded = true
-		}
-		if (!this.state.playing) {
-			newState.playing = true
-		}
-		this.setState(newState)
+		const percent = Number((currentTime / duration).toFixed(2))
+		this.setState({
+      videoTotal: duration,
+      currentTime: Number(data.currentTime.toFixed(2)),
+      videoProgress: percent
+    })
 	}
 
 	_onEnd() {
-		this.setState({
-			videoProgress: 1,
-			playing: false
-		})
-		console.log('end')
+    if (this.state.recording) {
+      this.setState({
+        videoProgress: 1,
+        recording: false
+      })
+    }
 	}
+
+  _record() {
+    this.setState({
+      videoProgress: 0,
+      counting: false,
+      recording: true
+    })
+    this.refs.videoPlayer.seek(0)
+  }
+
+  _counting() {
+    if (!this.state.counting && !this.state.recording) {
+      this.setState({
+        counting: true
+      })
+      this.refs.videoPlayer.seek(this.state.videoTotal - 0.01)
+    }
+  }
 
 	_onError(err) {
 		if (this.state.videoOk) {
@@ -114,8 +125,6 @@ export default class Edit extends Component {
 				videoOk: false
 			})
 		}
-		console.log(err)
-		console.log('error')
 	}
 
 	_rePlay() {
@@ -138,13 +147,12 @@ export default class Edit extends Component {
 	}
 
   _upload(body) {
-    console.log(body)
     const xhr = new XMLHttpRequest()
     const url = config.qiniu.upload
 
     this.setState({
       videoUploadedProgress: 0,
-      videoloading: true,
+      videoUploading: true,
       videoUploaded: false
     })
 
@@ -152,7 +160,6 @@ export default class Edit extends Component {
     xhr.onload = () => {
       if (xhr.status !== 200) {
         AlertIOS.alert('请求失败')
-        console.log(xhr.responseText)
         return
       }
 
@@ -170,7 +177,6 @@ export default class Edit extends Component {
         console.log('parse fails')
       }
 
-      console.log(response)
       if (response) {
         const user = this.state.user
         this.setState({
@@ -180,22 +186,20 @@ export default class Edit extends Component {
         })
 
         const videoURL = config.api.base + config.api.video
-        const accessToken = this.state.user.accessToken
-
-        request.post(videoURL, {
-          accessToken,
-          video: response
-        })
-        .catch(err => {
-          console.log(err)
-          AlertIOS.alert('视频同步出错，请重新上传！')
-        })
-        .then(data => {
-          console.log(data)
-          if (!data || !data.success) {
-            AlertIOS.alert('视频同步出错，请重新上传@')
-          }
-        })
+        const accessToken = user.accessToken
+        request
+          .post(videoURL, {
+            accessToken,
+            video: response
+          })
+          .catch(err => {
+            AlertIOS.alert('视频同步出错，请重新上传！')
+          })
+          .then(data => {
+            if (!data || !data.success) {
+              AlertIOS.alert('视频同步出错，请重新上传@')
+            }
+          })
       }
     }
     
@@ -216,7 +220,6 @@ export default class Edit extends Component {
     const accessToken = this.state.user.accessToken
     const signatureURL = config.api.base + config.api.signature
 
-    console.log(signatureURL)
     // 先从服务器获取签名，然后开始上传视频
     return request.post(signatureURL, {
       cloud: 'qiniu',
@@ -241,8 +244,6 @@ export default class Edit extends Component {
 
       this._getQiniuToken()
       .then(data => {
-        console.log('getQIniuToken')
-        console.log(data)
         if (data && data.success) {
           const token = data.data.token
           const key = data.data.key
@@ -286,7 +287,7 @@ export default class Edit extends Component {
           }
           </Text>
           {
-            this.state.previewVideo && this.state.videoLoaded
+            this.state.previewVideo && this.state.videoUploaded
             ? <Text style={styles.toolbarExtra} onPress={this._pickVideo.bind(this)}>更换视频</Text>
             : null
           }
@@ -321,7 +322,21 @@ export default class Edit extends Component {
                           processTintColor='#ee735c'
                           progress={this.state.videoUploadedProgress} />
                         <Text style={styles.progressTip}>
-                          正在生成静音视频，已完成{(this.state.videoUploadedProgress * 100)}
+                          正在生成静音视频，已完成{~~(this.state.videoUploadedProgress * 100)}%
+                        </Text>
+                      </View>
+                    : null
+                  }
+
+                  {
+                    this.state.recording
+                    ? <View style={styles.progressTipBox}>
+                        <ProgressViewIOS
+                          style={styles.progressBar}
+                          processTintColor='#ee735c'
+                          progress={this.state.videoProgress} />
+                        <Text style={styles.progressTip}>
+                          录制声音中
                         </Text>
                       </View>
                     : null
@@ -338,6 +353,32 @@ export default class Edit extends Component {
                   <Text style={styles.uploadDesc}>建议时长不超过 20 秒</Text>
                 </View>
               </TouchableOpacity>
+          }
+          {
+            this.state.videoUploaded
+            ?  <View style={styles.recordBox}>
+                <View style={[styles.recordIconBox, this.state.recording && styles.recordOn]}>
+                  {
+                    this.state.counting && !this.state.recording
+                    ? <CountDownText
+                        style={styles.countBtn}
+                        countType='seconds'
+                        auto={true}
+                        afterEnd={this._record.bind(this)}
+                        timeLeft={3}
+                        step={-1}
+                        startText='准备录制'
+                        endText='Go'
+                        intervalText={sec => sec === 0 ? 'Go' : sec} />
+                    : <TouchableOpacity onPress={this._counting.bind(this)}>
+                        <Icon
+                          name='ios-mic'
+                          style={styles.recordIcon} />
+                      </TouchableOpacity> 
+                  }
+                </View>
+              </View>
+            : null
           }
         </View>
       </View>
@@ -422,9 +463,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#333'
   },
   progressTipBox: {
-    position: 'absolute',
-    left: 0,
-    bottom: 0,
     width,
     height: 30,
     backgroundColor: 'rgba(244, 244, 244, 0.65)'
@@ -436,5 +474,33 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     width
+  },
+  recordBox: {
+    width,
+    height: 60,
+    alignItems: 'center'
+  },
+  recordIconBox: {
+    width: 68,
+    height: 68,
+    marginTop: -30,
+    borderRadius: 34,
+    backgroundColor: '#ee735c',
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  recordIcon: {
+    fontSize: 58,
+    backgroundColor: 'transparent',
+    color: '#fff'
+  },
+  countBtn: {
+    fontSize: 32,
+    fontWeight: '600',
+    color: '#fff'
+  },
+  recordOn: {
+      backgroundColor: '#ccc'
   }
 })
