@@ -15,6 +15,8 @@
 + [sha1](https://www.npmjs.com/package/sha1)
 + [react-native-progress](https://github.com/oblador/react-native-progress)
 + [uuid](https://www.npmjs.com/package/uuid)
++ [react-native-audio](https://github.com/jsierles/react-native-audio)
++ [react-native-sound](https://github.com/zmxv/react-native-sound)
 
 ## 调试
 + [react-devtools](http://reactnative.cn/docs/0.44/debugging.html)
