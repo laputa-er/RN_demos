@@ -21,6 +21,9 @@ import ImagePicker from 'react-native-image-picker'
 import Video from 'react-native-video'
 import CountDownText from '../components/CountDownText'
 import Icon from 'react-native-vector-icons/Ionicons'
+import _ from 'lodash'
+import Sound from 'react-native-sound'
+import { AudioRecorder, AudioUtils } from 'react-native-audio'
 
 import * as request from '../common/request'
 import config from '../common/config'
@@ -44,33 +47,43 @@ const videoOptions = {
   }
 }
 
+const defaultState = {
+  user: null,
+  previewVideo: null,
+
+  // video upload
+  video: null, // 存储上传到七牛后返回的存储空间中的视频文件的相关信息
+  videoUploaded: false,
+  videoUploading: false,
+  videoUploadedProgress: 0.01,
+
+  // video loads
+  videoLoaded: false,
+  videoProgress: 0.01,
+  videoTotal: 0,
+  currentTime: 0,
+  
+  // video player
+  repeat: false,
+  resizeMode: 'contain',
+  muted: true,
+  rate: 1,
+
+  // record
+  counting: false,
+  recording: false,
+
+  // audio
+  audioPath: AudioUtils.DocumentDirectoryPath + '/gougou.aac',
+  audioPlaying: false,
+  recordDone: false
+}
 export default class Edit extends Component {
-  state = {
-    user: this.props.user || {},
-    previewVideo: null,
-
-    // video upload
-    video: null, // 存储上传到七牛后返回的存储空间中的视频文件的相关信息
-    videoUploaded: false,
-    videoUploading: false,
-    videoUploadedProgress: 0.01,
-
-    // video loads
-    videoLoaded: false,
-    videoProgress: 0.01,
-    videoTotal: 0,
-    currentTime: 0,
-    
-    // video player
-    repeat: false,
-    resizeMode: 'contain',
-    muted: true,
-    rate: 1,
-
-    // record
-    counting: false,
-    recording: false
-  };
+  constructor(props) {
+    super(props)
+    this.state.user = props.user
+  }
+  state = _.cloneDeep(defaultState);
 
   _onLoadStart() {
 	}
@@ -94,9 +107,11 @@ export default class Edit extends Component {
 
 	_onEnd() {
     if (this.state.recording) {
+      AudioRecorder.stopRecording()
       this.setState({
         videoProgress: 1,
-        recording: false
+        recording: false,
+        recordDone: true
       })
     }
 	}
@@ -105,13 +120,15 @@ export default class Edit extends Component {
     this.setState({
       videoProgress: 0,
       counting: false,
-      recording: true
+      recording: true,
+      recordDone: false
     })
+    AudioRecorder.startRecording()
     this.refs.videoPlayer.seek(0)
   }
 
   _counting() {
-    if (!this.state.counting && !this.state.recording) {
+    if (!this.state.counting && !this.state.recording && !this.state.sudioPlaying) {
       this.setState({
         counting: true
       })
@@ -123,25 +140,6 @@ export default class Edit extends Component {
 		if (this.state.videoOk) {
 			this.setState({
 				videoOk: false
-			})
-		}
-	}
-
-	_rePlay() {
-		this.refs.videoPlayer.seek(0)
-	}
-	_pause() {
-		if (!this.state.paused) {
-			this.setState({
-				paused: true
-			})
-		}
-	}
-
-	_resume() {
-		if (this.state.paused) {
-			this.setState({
-				paused: false
 			})
 		}
 	}
@@ -236,11 +234,10 @@ export default class Edit extends Component {
       if (res.didCancel) {
         return
       }
-      var uri = res.uri
-
-      this.setState({
-        previewVideo: uri
-      })
+      const state = _.cloneDeep(defaultState)
+      state.previewVideo = res.uri
+      state.user = this.state.user
+      this.setState(state)
 
       this._getQiniuToken()
       .then(data => {
@@ -253,13 +250,60 @@ export default class Edit extends Component {
           body.append('key', key)
           body.append('file', {
             type: 'video/mp4',
-            uri,
+            uri: res.uri,
             name: key
           })
           this._upload(body)
         }
       })
     })
+  }
+
+  async _preview() {
+    if (this.state.audioPlaying) {
+      AudioRecorder.stopRecording()
+    }
+
+    setTimeout(() => {
+      const sound = new Sound(this.state.audioPath, '', (error) => {
+        if (error) {
+          console.log('failed to load the sound', error);
+        }
+      });
+      setTimeout(() => {
+        sound.play((success) => {
+          if (success) {
+            this.setState({
+              videoPlayer: 0,
+              audioPlaying: true
+            })
+          }
+          else {
+            console.log('playback failed due to audio decoding errors');
+          }
+        });
+        this.refs.videoPlayer.seek(0) // 将视频播放进度重置到 0
+      }, 100);
+    }, 100);
+  }
+
+  _initAudio() {
+    AudioRecorder.prepareRecordingAtPath(this.state.audioPath, {
+      SampleRate: 22050,
+      Channels: 1,
+      AudioQuality: 'High',
+      AudioEncoding: 'aac'
+    })
+
+    AudioRecorder.onProgress = (data) => {
+      this.setState({ currentTime: Math.floor(data.currentTime) })
+    }
+
+    AudioRecorder.onFinished = (data) => {
+      this.setState({
+        finished: data.finished
+      })
+    }
   }
 
   componentDidMount() {
@@ -275,6 +319,7 @@ export default class Edit extends Component {
         })
       }
     })
+    this._initAudio()
   }
 
   render() {
@@ -329,15 +374,28 @@ export default class Edit extends Component {
                   }
 
                   {
-                    this.state.recording
+                    this.state.recording || this.state.audioPlaying
                     ? <View style={styles.progressTipBox}>
                         <ProgressViewIOS
                           style={styles.progressBar}
                           processTintColor='#ee735c'
                           progress={this.state.videoProgress} />
-                        <Text style={styles.progressTip}>
-                          录制声音中
-                        </Text>
+                        {
+                          this.state.recording
+                          ? <Text style={styles.progressTip}>
+                              录制声音中
+                            </Text>
+                          : null
+                        }
+                      </View>
+                    : null
+                  }
+
+                  {
+                    this.state.recordDone
+                    ? <View style={styles.previewBox}>
+                        <Icon name="ios-play" style={styles.previewIcon} />
+                        <Text style={styles.previewText} onPress={this._preview.bind(this)}>预览</Text>
                       </View>
                     : null
                   }
@@ -357,7 +415,7 @@ export default class Edit extends Component {
           {
             this.state.videoUploaded
             ?  <View style={styles.recordBox}>
-                <View style={[styles.recordIconBox, this.state.recording && styles.recordOn]}>
+                <View style={[styles.recordIconBox, (this.state.recording || this.state.audioPlaying) && styles.recordOn]}>
                   {
                     this.state.counting && !this.state.recording
                     ? <CountDownText
@@ -478,7 +536,9 @@ const styles = StyleSheet.create({
   recordBox: {
     width,
     height: 60,
-    alignItems: 'center'
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#fff'
   },
   recordIconBox: {
     width: 68,
@@ -502,5 +562,27 @@ const styles = StyleSheet.create({
   },
   recordOn: {
       backgroundColor: '#ccc'
+  },
+  previewBox: {
+    width: 80,
+    height: 30,
+    position: 'absolute',
+    right: 10,
+    bottom: 10,
+    borderWidth: 1,
+    borderColor: '#ee735c',
+    borderRadius: 3,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  previeIcon: {
+    marginRight: 5,
+    fontSize: 20,
+    color: '#ee735c'
+  },
+  previewText: {
+    fontSize: 20,
+    color: '#ee735c'
   }
 })
