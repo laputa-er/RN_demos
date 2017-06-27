@@ -4,6 +4,7 @@
  * @flow
  */
  
+import _ from 'lodash'
 import React, { Component } from 'react'
 import {
   StyleSheet,
@@ -21,8 +22,8 @@ import ImagePicker from 'react-native-image-picker'
 import Video from 'react-native-video'
 import CountDownText from '../components/CountDownText'
 import Icon from 'react-native-vector-icons/Ionicons'
-import _ from 'lodash'
 import Sound from 'react-native-sound'
+import * as Progress from 'react-native-progress'
 import { AudioRecorder, AudioUtils } from 'react-native-audio'
 
 import * as request from '../common/request'
@@ -76,7 +77,12 @@ const defaultState = {
   // audio
   audioPath: AudioUtils.DocumentDirectoryPath + '/gougou.aac',
   audioPlaying: false,
-  recordDone: false
+  recordDone: false,
+
+  audio: null,
+  audioUploaded: false,
+  audioUploading: false,
+  audioUploadedProgress: 0.01,
 }
 export default class Edit extends Component {
   constructor(props) {
@@ -144,15 +150,19 @@ export default class Edit extends Component {
 		}
 	}
 
-  _upload(body) {
+  _upload(body, type) {
     const xhr = new XMLHttpRequest()
-    const url = config.qiniu.upload
+    let url = config.qiniu.upload
 
-    this.setState({
-      videoUploadedProgress: 0,
-      videoUploading: true,
-      videoUploaded: false
-    })
+    if (type === 'audio') {
+      url = config.cloudinary.video
+    }
+    const state = {}
+    state[type + 'UploadedProgress'] = 0
+    state[type + 'Uploading'] = true
+    state[type + 'Uploaded'] = false
+    
+    this.setState(state)
 
     xhr.open('POST', url)
     xhr.onload = () => {
@@ -176,26 +186,30 @@ export default class Edit extends Component {
       }
 
       if (response) {
-        const user = this.state.user
-        this.setState({
-          video: response,
-          videoUploading: false,
-          videoUploaded: true
-        })
+        const newState = {}
+        newState[type] = response
+        newState[type] = response
+        newState[type + 'Uploading'] = false
+        newState[type + 'Uploaded'] = true
+        this.setState(newState)
 
-        const videoURL = config.api.base + config.api.video
-        const accessToken = user.accessToken
+        const updateURL = config.api.base + config.api[type]
+        const accessToken = this.state.user.accessToken
+        const updateBody = {
+          accessToken,
+          [type]: response
+        }
         request
-          .post(videoURL, {
-            accessToken,
-            video: response
-          })
+          .post(updateURL, updateBody)
           .catch(err => {
             AlertIOS.alert('视频同步出错，请重新上传！')
           })
           .then(data => {
-            if (!data || !data.success) {
-              AlertIOS.alert('视频同步出错，请重新上传@')
+            console.log(data)
+            if (data && data.success) {
+            }
+            else {
+              AlertIOS.alert('视频同步失败，请重新上传')
             }
           })
       }
@@ -207,26 +221,19 @@ export default class Edit extends Component {
         if (event.lengthComputable) {
           const percent = Number((event.loaded / event.total).toFixed(2))
           this.setState({
-            videoUploadedProgress: percent
+            [type + 'UploadedProgress']: percent
           })
         }
       }
     }
     xhr.send(body)
   }
-  _getQiniuToken() {
-    const accessToken = this.state.user.accessToken
+  _getToken(body) {
+    body.accessToken = this.state.user.accessToken
     const signatureURL = config.api.base + config.api.signature
 
     // 先从服务器获取签名，然后开始上传视频
-    return request.post(signatureURL, {
-      cloud: 'qiniu',
-      accessToken,
-      type: 'video'
-    })
-    .catch(err => {
-      console.log(err)
-    })
+    return request.post(signatureURL, body)
   }
 
   _pickVideo() {
@@ -239,7 +246,14 @@ export default class Edit extends Component {
       state.user = this.state.user
       this.setState(state)
 
-      this._getQiniuToken()
+      this._getToken({
+        type: 'video',
+        cloud: 'qiniu'
+      })
+      .catch(err => {
+        console.log(err)
+        AlertIOS.alert('上传出错')
+      })
       .then(data => {
         if (data && data.success) {
           const token = data.data.token
@@ -253,7 +267,7 @@ export default class Edit extends Component {
             uri: res.uri,
             name: key
           })
-          this._upload(body)
+          this._upload(body, 'video')
         }
       })
     })
@@ -287,6 +301,38 @@ export default class Edit extends Component {
     }, 100);
   }
 
+  _uploadAudio() {
+    const tags = 'app,audio'
+    const folder = 'audio'
+    const timestamp = Date.now()
+    this._getToken({
+      type: 'audio',
+      timestamp,
+      cloud: 'cloudinary'
+    })
+    .catch(err => {
+      console.log(err)
+    })
+    .then(data => {
+      if (data && data.success) {
+        const signature = data.data.token
+        const key = data.data.key
+        const body = new FormData()
+        body.append('folder', folder)
+        body.append('signature', signature)
+        body.append('tags', tags)
+        body.append('timestamp', timestamp)
+        body.append('api_key', config.cloudinary.api_key)
+        body.append('resource_type', 'video')
+        body.append('file', {
+          type: 'video/mp4',
+          uri: this.state.audioPath,
+          name: key
+        })
+        this._upload(body, 'audio')
+      }
+    })
+  }
   _initAudio() {
     AudioRecorder.prepareRecordingAtPath(this.state.audioPath, {
       SampleRate: 22050,
@@ -438,6 +484,30 @@ export default class Edit extends Component {
               </View>
             : null
           }
+
+          {
+            this.state.videoUploaded && this.state.recordDone
+            ? <View style={styles.uploadAudioBox}>
+              {
+                !this.state.audioUploaded && !this.state.audioUploading    
+                ? <Text style={styles.uploadAudioText} onPress={this._uploadAudio.bind(this)}>下一步</Text>
+                : null
+              }
+              {
+                this.state.audioUploading
+                ? <Progress.Circle
+                    showsText={true}
+                    size={60}
+                    color={'#ee735c'}
+                    progress={this.state.audioUploadedProgress}
+                  />
+                : null
+              }
+                
+              </View>
+            : null
+          }
+          
         </View>
       </View>
     )
@@ -579,9 +649,28 @@ const styles = StyleSheet.create({
   previeIcon: {
     marginRight: 5,
     fontSize: 20,
-    color: '#ee735c'
+    color: '#ee735c',
+    backgroundColor: 'transparent'
   },
   previewText: {
+    fontSize: 20,
+    color: '#ee735c',
+    backgroundColor: 'transparent'
+  },
+  uploadAudioBox: {
+    width,
+    height: 60,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  uploadAudioText: {
+    width: width - 20,
+    padding: 5,
+    borderWidth: 1,
+    borderColor: '#ee735c',
+    borderRadius: 5,
+    textAlign: 'center',
     fontSize: 20,
     color: '#ee735c'
   }
