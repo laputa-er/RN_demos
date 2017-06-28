@@ -52,6 +52,9 @@ const defaultState = {
   user: null,
   previewVideo: null,
 
+  videoId: null,
+  audioId: null,
+
   // video upload
   video: null, // 存储上传到七牛后返回的存储空间中的视频文件的相关信息
   videoUploaded: false,
@@ -185,34 +188,49 @@ export default class Edit extends Component {
         console.log('parse fails')
       }
 
-      if (response) {
-        const newState = {}
-        newState[type] = response
-        newState[type] = response
-        newState[type + 'Uploading'] = false
-        newState[type + 'Uploaded'] = true
-        this.setState(newState)
+      const newState = {}
+      newState[type] = response
+      newState[type] = response
+      newState[type + 'Uploading'] = false
+      newState[type + 'Uploaded'] = true
+      this.setState(newState)
 
-        const updateURL = config.api.base + config.api[type]
-        const accessToken = this.state.user.accessToken
-        const updateBody = {
-          accessToken,
-          [type]: response
-        }
-        request
-          .post(updateURL, updateBody)
-          .catch(err => {
-            AlertIOS.alert('视频同步出错，请重新上传！')
-          })
-          .then(data => {
-            console.log(data)
-            if (data && data.success) {
-            }
-            else {
-              AlertIOS.alert('视频同步失败，请重新上传')
-            }
-          })
+      const updateURL = config.api.base + config.api[type]
+      const accessToken = this.state.user.accessToken
+      const updateBody = {
+        accessToken,
+        [type]: response
       }
+
+      if (type === 'audio') {
+        updateBody.videoId = this.state.videoId
+      }
+      request
+      .post(updateURL, updateBody)
+      .catch(err => {
+        if (type === 'video') {
+          AlertIOS.alert('视频同步出错，请重新上传！')
+        }
+        else if (type === 'audio') {
+          AlertIOS.alert('音频同步出错，请重新上传！')
+        }
+      })
+      .then(data => {
+        console.log(data)
+        if (data && data.success) {
+          const mediaState = {}
+          mediaState[`${type}Id`] = data.data
+          this.setState(mediaState)
+        }
+        else {
+          if (type === 'video') {
+            AlertIOS.alert('视频同步出错，请重新上传！')
+          }
+          else if (type === 'audio') {
+            AlertIOS.alert('音频同步出错，请重新上传！')
+          }
+        }
+      })
     }
     
     // 获取视频上传进度
