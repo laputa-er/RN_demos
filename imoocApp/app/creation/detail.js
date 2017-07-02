@@ -11,8 +11,10 @@ import Button from 'react-native-button'
 
 import * as request from '../common/request'
 import config from '../common/config'
+import * as util from '../common/util'
 
 import {
+	AsyncStorage,
 	AlertIOS,
 	Modal,
 	TextInput,
@@ -42,6 +44,7 @@ export default class Detail extends Component {
 		})
 
 		this.state = {
+			user: props.user || {},
 			data: this.props.data,
 
 			// comments
@@ -144,16 +147,24 @@ export default class Detail extends Component {
 	}
 
 	componentDidMount() {
-		this._fetchData()
+		AsyncStorage.getItem('user')
+			.then(data => {
+				let user
+				
+				if (data) {
+					user = JSON.parse(data)
+				}
+				if (user && user.accessToken) {
+					this.setState({ user }, () => { this._fetchData(1) })
+				}
+			})
 	}
 	
 	_focus() {
 		this._setModalVisible(true)
 	}
 
-	_blur() {
-
-	}
+	_blur() {}
 
 	_closeModal() {
 		this._setModalVisible(false)
@@ -170,7 +181,7 @@ export default class Detail extends Component {
 		return (
 			<View style={styles.listHeader}>
 				<View style={styles.infoBox}>
-					<Image style={styles.avatar} source={{uri: data.author.avatar}} />
+					<Image style={styles.avatar} source={{uri: util.avatar(data.author.avatar)}} />
 					<View style={styles.descBox}>
 						<Text style={styles.nickName}>{data.author.nickName}</Text>
 						<Text style={styles.title}>{data.title}</Text>
@@ -210,13 +221,20 @@ export default class Detail extends Component {
 	}
 
   _renderRow(row) {
-    return <Item row={row} onSelect={() => this._loadPage(row)}/>
+    return (
+			<View
+				key={row._id}
+				style={styles.replyBox}>
+				<Image
+					style={styles.replyAvatar}
+					source={{ uri: util.avatar(row.replyBy.avatar) }} />
+				<View style={styles.reply}>
+					<Text style={styles.replyNickName}>{row.replyBy.nickname}</Text>
+					<Text style={styles.replyContent}>{row.content}</Text>
+				</View>
+			</View>
+		)
   }
-	
-	componentDidMount() {
-		this._fetchData(1)
-	}
-
 
 	_hasMore() {
 		return cachedResults.items.length !== cachedResults.total
@@ -235,13 +253,13 @@ export default class Detail extends Component {
 			isLoadingTail: true
 		})
 
-		request.get(config.api.base + config.api.comment, {
-			accessToken: '12345',
-			creation: 124,
+		request.get(config.api.mock + config.api.comment, {
+			accessToken: this.state.user.accessToken,
+			creation: this.state.data._id,
 			page
 		})
 		.then(data => {
-			if (data.success) {
+			if (data && data.success && data.length > 0) {
 				let items = cachedResults.items.slice()
 				cachedResults.items = items.concat(data.data)
 				cachedResults.nextPage++
@@ -271,8 +289,8 @@ export default class Detail extends Component {
 			isSending: true
 		}, () => {
 			const body = {
-				accessToken: 'abc',
-				creation: '1235',
+				accessToken: this.state.user.accessToken,
+				creation: this.state.data._id,
 				content: this.state.content
 			}
 			const url = config.api.base + config.api.comment
@@ -308,20 +326,6 @@ export default class Detail extends Component {
 		})
 	}
 
-	_renderRow(row) {
-		return (
-			<View key={row._id} style={styles.replyBox}>
-				<Image
-					style={styles.replyAvatar}
-					source={{uri: row.replyBy.avatar}}/>
-				<View style={styles.reply}>
-					<Text style={styles.replyNickName}>{row.replyBy.nickName}</Text>
-					<Text style={styles.replyContent}>{row.content}</Text>
-				</View>
-			</View>
-		)
-	}
-
   render() {
 		const data = this.props.data
     return (
@@ -340,7 +344,7 @@ export default class Detail extends Component {
 				<View style={styles.videoBox}>
 					<Video
 						ref='videoPlayer'
-						source={{uri: data.video}}
+						source={{uri: util.video(data.qiniu_video)}}
 						style={styles.video}
 						volum={5}
 						paused={this.state.paused}
@@ -391,6 +395,7 @@ export default class Detail extends Component {
 						<View style={[styles.progressBar, {width: width * this.state.videoProgress}]}></View>
 					</View>
 				</View>
+
 				<ListView
 					renderHeader={this._renderHeader.bind(this)}
 					renderFooter={this._renderFooter.bind(this)}
