@@ -28,7 +28,7 @@ import { Navigator } from 'react-native-deprecated-custom-components'
 
 class App extends Component {
   state = {
-    selectedTab: 'edit',
+    selectedTab: 'list',
     logined: false,
     user: null
   };
