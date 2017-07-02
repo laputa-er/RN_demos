@@ -6,8 +6,14 @@ export default {
 			'Content-Type': 'application/json'
 		}
 	},
+	backup: {
+		avatar: 'http://org5v1bbt.bkt.clouddn.com/dog.jpg'
+	},
 	qiniu: {
-		upload: 'http://up-z1.qiniu.com'
+		upload: 'http://up-z1.qiniu.com',
+		video: 'http://org5nla9w.bkt.clouddn.com/',
+		thumb: 'http://org5nla9w.bkt.clouddn.com/',
+		avatar: 'http://org5v1bbt.bkt.clouddn.com/'
 	},
 	cloudinary: {
 		cloud_name: 'dox3udxny',
@@ -18,7 +24,7 @@ export default {
 		audio: 'https://api.cloudinary.com/v1_1/dox3udxny/raw/upload'
 	},
 	api: {
-		// base: 'http://rapapi.org/mockjs/18917/',
+		mock: 'http://rapapi.org/mockjs/18917/',
 		base: 'http://127.0.0.1:1234/',
 		creations: 'api/creations',
 		up: 'api/up',
