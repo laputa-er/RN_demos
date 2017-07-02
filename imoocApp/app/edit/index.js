@@ -52,7 +52,6 @@ const videoOptions = {
 }
 
 const defaultState = {
-  user: null,
   previewVideo: null,
 
   videoId: null,
@@ -426,7 +425,7 @@ export default class Edit extends Component {
             // AlertIOS.alert('视频发布成功')
             setTimeout(() => {
               const newState = _.clone(defaultState)
-              this.setState(newState)
+              this.setState(Object.assign({}, this.state, newState))
             }, 0)
           }
           else {
