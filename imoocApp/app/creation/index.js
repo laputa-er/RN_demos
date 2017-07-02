@@ -9,6 +9,7 @@ import Icon from 'react-native-vector-icons/Ionicons'
 
 import * as request from '../common/request'
 import config from '../common/config'
+import * as util from '../common/util'
 import Detail from './detail'
 import {
 	AlertIOS,
@@ -20,13 +21,14 @@ import {
   TouchableHighlight,
   Image,
   Dimensions,
-	ActivityIndicator
+	ActivityIndicator,
+	AsyncStorage
 } from 'react-native' 
 const width = Dimensions.get('window').width
 const cachedResults = {
 	nextPage: 1,
 	items: [],
-	total: 0
+	total: 0 
 }
 
 class Item extends Component {
@@ -49,7 +51,7 @@ class Item extends Component {
 		const body = {
 			id: row._id,
 			up: up ? 'yes' : 'no',
-			accessToken: '12345'
+			accessToken: this.props.user.accessToken
 		}
 
 		request.post(url, body)
@@ -76,7 +78,7 @@ class Item extends Component {
         <View style={styles.item}>
           <Text style={styles.itemTitle}>{row.title}</Text>
           <Image
-            source={{uri: row.thumb}}
+            source={{ uri: util.thumb(row.qiniu_thumb) }}
             style={styles.thumb}
           >
             <Icon
@@ -126,7 +128,8 @@ export default class List extends Component {
 			name: 'detail',
 			component: Detail,
 			params: {
-				data: row
+				data: row,
+				user: this.state.user
 			}
 		})
 	}
@@ -148,11 +151,27 @@ export default class List extends Component {
 	}
 
   _renderRow(row) {
-    return <Item row={row} onSelect={() => this._loadPage(row)}/>
+    return (
+			<Item
+				key={row._id}
+				row={row}
+				user={this.state.user}
+				onSelect={() => this._loadPage(row)}/>
+		)
   }
 	
 	componentDidMount() {
-		this._fetchData(1)
+		AsyncStorage.getItem('user')
+			.then(data => {
+				let user
+				if (data) {
+					user = JSON.parse(data)
+				}
+
+				if (user && user.accessToken) {
+					this.setState({ user }, () => { this._fetchData(1) })
+				}
+			})
 	}
 
 	_onRefresh() {
@@ -190,28 +209,30 @@ export default class List extends Component {
 		}
 
 		request.get(config.api.base + config.api.creations, {
-			accessToken: '12345',
+			accessToken: this.state.user.accessToken,
 			page
 		})
 		.then(data => {
-			if (data.success) {
-				let items = cachedResults.items.slice()
-				if (page === 0) {
-					cachedResults.items = data.data.concat(items)
-					this.setState({
-						isRefreshing: false,
-						dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
-					})
+			if (data && data.success) {
+				if (data.data && data.data.length > 0) {
+					let items = cachedResults.items.slice()
+					if (page === 0) {
+						cachedResults.items = data.data.concat(items)
+						this.setState({
+							isRefreshing: false,
+							dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
+						})
+					}
+					else {
+						cachedResults.items = items.concat(data.data)
+						cachedResults.nextPage++
+						this.setState({
+							isLoadingTail: false,
+							dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
+						})
+					}
+					cachedResults.total = data.total
 				}
-				else {
-					cachedResults.items = items.concat(data.data)
-					cachedResults.nextPage++
-					this.setState({
-						isLoadingTail: false,
-						dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
-					})
-				}
-				cachedResults.total = data.total
 			}
 		})
 		.catch(error => {
@@ -276,7 +297,6 @@ const styles = StyleSheet.create({
   },
   item: {
     width,
-    marginBottom: 10,
     marginBottom: 10,
     backgroundColor: '#fff'
   },
