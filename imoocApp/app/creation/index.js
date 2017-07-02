@@ -208,13 +208,20 @@ export default class List extends Component {
 			})
 		}
 
+		const user = this.state.user
 		request.get(config.api.base + config.api.creations, {
-			accessToken: this.state.user.accessToken,
+			accessToken: user.accessToken,
 			page
 		})
 		.then(data => {
 			if (data && data.success) {
 				if (data.data && data.data.length > 0) {
+
+					data.data.map(comment => {
+						const votes = comment.votes || []
+						comment.voted = votes.includes(user._id)
+						return comment
+					})
 					let items = cachedResults.items.slice()
 					if (page === 0) {
 						cachedResults.items = data.data.concat(items)
