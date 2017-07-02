@@ -45,7 +45,7 @@ export default class Detail extends Component {
 
 		this.state = {
 			user: props.user || {},
-			data: this.props.data,
+			data: props.data,
 
 			// comments
 			dataSource: ds.cloneWithRows([]),
@@ -155,7 +155,7 @@ export default class Detail extends Component {
 					user = JSON.parse(data)
 				}
 				if (user && user.accessToken) {
-					this.setState({ user }, () => { this._fetchData(1) })
+					this.setState({ user }, () => { this._fetchData() })
 				}
 			})
 	}
@@ -253,28 +253,35 @@ export default class Detail extends Component {
 			isLoadingTail: true
 		})
 
-		request.get(config.api.mock + config.api.comment, {
+		request.get(config.api.base + config.api.comment, {
 			accessToken: this.state.user.accessToken,
 			creation: this.state.data._id,
 			page
 		})
 		.then(data => {
-			if (data && data.success && data.length > 0) {
-				let items = cachedResults.items.slice()
-				cachedResults.items = items.concat(data.data)
-				cachedResults.nextPage++
+			if (data && data.success && data.data) {
+				if (data.data.length > 0) {
+					let items = cachedResults.items.slice()
+					cachedResults.items = items.concat(data.data)
+					cachedResults.nextPage++
+					cachedResults.total = data.total
+					this.setState({
+						isLoadingTail: false,
+						dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
+					})
+				}
+			}
+			else {
 				this.setState({
-					isLoadingTail: false,
-					dataSource: this.state.dataSource.cloneWithRows(cachedResults.items)
-				})
-				cachedResults.total = data.total
+					isLoadingTail: false
+				})	
 			}
 		})
 		.catch(error => {
 			this.setState({
 				isLoadingTail: false
 			})
-			console.error(error)
+			console.warn(error)
 		})
 	}
 
@@ -290,21 +297,17 @@ export default class Detail extends Component {
 		}, () => {
 			const body = {
 				accessToken: this.state.user.accessToken,
-				creation: this.state.data._id,
-				content: this.state.content
+				comment: {
+					creation: this.state.data._id,
+					content: this.state.content
+				}
 			}
 			const url = config.api.base + config.api.comment
 			request.post(url, body)
 				.then(data => {
 					if (data && data.success) {
 						let items = cachedResults.items.slice()
-						items = [{
-							content: this.state.content,
-							replyBy: {
-								nickName: '狗狗说',
-								avatar: 'http://dummyimage.com/640x640/7939ce)'
-							}
-						}].concat(items)
+						items = data.data.concat(items)
 						cachedResults.items = items
 						cachedResults.total = cachedResults.total + 1
 						this._setModalVisible(false)
