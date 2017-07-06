@@ -21,16 +21,21 @@ import {
   View,
   Text,
   TabBarIOS,
-  AsyncStorage
+  AsyncStorage,
+  ActivityIndicator,
+  Dimensions
 } from 'react-native' 
 import { Navigator } from 'react-native-deprecated-custom-components'
 
+const width = Dimensions.get('window').width
+const height = Dimensions.get('window').height
 
 class App extends Component {
   state = {
     selectedTab: 'list',
     logined: false,
-    user: null
+    user: null,
+    booted: false
   };
 
   componentDidMount() {
@@ -41,11 +46,10 @@ class App extends Component {
     AsyncStorage.getItem('user')
       .then(data => {
         let user
-        const newState = {}
+        const newState = { booted: true }
         if (data) {
           user = JSON.parse(data)
         }
-
         if (user && user.accessToken) {
           newState.user = user
           newState.logined = true
@@ -77,6 +81,13 @@ class App extends Component {
   }
 
   render() {
+    if (!this.state.booted) {
+      return (
+        <View style={styles.bootPage}>
+          <ActivityIndicator color='#ee735c' />
+        </View>
+      )
+    }
     if (!this.state.logined) {
       return <Login afterLogin={this._afterLogin.bind(this)}/>
     }
@@ -141,6 +152,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
+  },
+  bootPage: {
+    width,
+    height,
+    backgroundColor: '#fff',
+    justifyContent: 'center'
   }
 })
 
