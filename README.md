@@ -17,6 +17,7 @@
 + [uuid](https://www.npmjs.com/package/uuid)
 + [react-native-audio](https://github.com/jsierles/react-native-audio)
 + [react-native-sound](https://github.com/zmxv/react-native-sound)
++ [react-native-swiper](https://github.com/zmxv/react-native-swiper)
 
 ## 调试
 + [react-devtools](http://reactnative.cn/docs/0.44/debugging.html)

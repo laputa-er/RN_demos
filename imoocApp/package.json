@@ -9,6 +9,7 @@
   "dependencies": {
     "lodash": "^4.17.4",
     "mockjs": "^1.0.1-beta3",
+    "prop-types": "^15.5.10",
     "query-string": "^4.3.4",
     "react": "16.0.0-alpha.6",
     "react-addons-update": "^15.5.2",
@@ -20,6 +21,7 @@
     "react-native-progress": "^3.2.1",
     "react-native-sk-countdown": "^1.0.1",
     "react-native-sound": "^0.10.3",
+    "react-native-swiper": "^1.5.4",
     "react-native-vector-icons": "^4.1.1",
     "react-native-video": "^1.0.0",
     "sha1": "^1.1.1",
