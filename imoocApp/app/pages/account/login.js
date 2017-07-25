@@ -8,8 +8,9 @@ import React, { Component } from 'react'
 import Icon from 'react-native-vector-icons/Ionicons'
 import Button from 'react-native-button'
 
-import * as request from '../common/request'
-import config from '../common/config'
+import * as request from '../../common/request'
+import config from '../../common/config'
+import Popup from '../../components/popup'
 
 import {
 	StyleSheet,
@@ -163,6 +164,7 @@ export default class Login extends Component {
 								style={styles.btn}
 								onPress={this._sendVerifyCode.bind(this)}>获取验证码</Button>
 					}
+					<Popup {...this.props} />
 				</View>
 			</View>
 		)

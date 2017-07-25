@@ -1,6 +1,5 @@
 import queryString from 'query-string'
 import _ from 'lodash'
-import Mock from 'mockjs'
 import config from './config'
 
 export function get(url, params) {
@@ -20,4 +19,3 @@ export function post(url, body) {
 		.then(response => response.json())
 		.then(response => Mock.mock(response))
 }
-

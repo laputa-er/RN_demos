@@ -7,6 +7,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "immutable": "^3.8.1",
     "lodash": "^4.17.4",
     "mockjs": "^1.0.1-beta3",
     "prop-types": "^15.5.10",
@@ -24,6 +25,12 @@
     "react-native-swiper": "^1.5.4",
     "react-native-vector-icons": "^4.1.1",
     "react-native-video": "^1.0.0",
+    "react-redux": "^5.0.5",
+    "redux": "^3.7.2",
+    "redux-immutable": "^4.0.0",
+    "redux-logger": "^3.0.6",
+    "redux-promise": "^0.5.3",
+    "redux-thunk": "^2.2.0",
     "sha1": "^1.1.1",
     "uuid": "^3.0.1"
   },

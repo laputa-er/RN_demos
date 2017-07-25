@@ -1,5 +1,5 @@
 import React from 'react'
-import PropsType from 'prop-types'
+import PropTypes from 'prop-types'
 import {
 	Text,
 	View,
@@ -17,7 +17,7 @@ const height = Dimensions.get('window').height
 
 export default class Slider extends React.Component {
 	static propTypes = {
-    enterSlide: PropsType.func
+    enterSlide: PropTypes.func
 	};
 	state = {
 		loop: false,
