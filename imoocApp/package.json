@@ -25,6 +25,7 @@
     "react-native-swiper": "^1.5.4",
     "react-native-vector-icons": "^4.1.1",
     "react-native-video": "^1.0.0",
+    "react-navigation": "^1.0.0-beta.11",
     "react-redux": "^5.0.5",
     "redux": "^3.7.2",
     "redux-immutable": "^4.0.0",
@@ -37,6 +38,8 @@
   "devDependencies": {
     "babel-jest": "19.0.0",
     "babel-preset-react-native": "1.9.1",
+    "eslint": "^4.3.0",
+    "eslint-plugin-react": "^7.1.0",
     "jest": "19.0.2",
     "react-test-renderer": "16.0.0-alpha.6"
   },

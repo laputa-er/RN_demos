@@ -18,6 +18,7 @@
 + [react-native-audio](https://github.com/jsierles/react-native-audio)
 + [react-native-sound](https://github.com/zmxv/react-native-sound)
 + [react-native-swiper](https://github.com/zmxv/react-native-swiper)
++ [react-navigation](https://github.com/react-community/react-navigation)
 
 ## 调试
 + [react-devtools](http://reactnative.cn/docs/0.44/debugging.html)
