@@ -1,18 +1,27 @@
 module.exports = {
     "env": {
         "es6": true,
-        "node": true
+        "node": true,
+        "browser": true,
     },
-    "extends": "eslint:recommended",
+    "parser": "babel-eslint",
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "plugin:import/errors",
+        "plugin:import/warnings"
+    ],
     "parserOptions": {
+        "ecmaVersion": 2017,
         "ecmaFeatures": {
             "experimentalObjectRestSpread": true,
-            "jsx": true
+            "jsx": true,
         },
         "sourceType": "module"
     },
     "plugins": [
-        "react"
+        "react",
+        "import"
     ],
     "rules": {
         "indent": [
@@ -30,6 +39,15 @@ module.exports = {
         "semi": [
             "error",
             "never"
-        ]
+        ],
+        "react/jsx-uses-react": "error",
+        "react/jsx-uses-vars": "error",
+        "no-console": ["error", { allow: ["warn", "error", "log"] }],
+        "space-before-function-paren": ["error", {
+            "anonymous": "always",
+            "named": "always",
+            "asyncArrow": "always"
+        }],
+        "require-await": "error"
     }
 };

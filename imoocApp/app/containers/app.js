@@ -1,4 +1,5 @@
-import React, { Component } from 'react'
+import React from 'react'
+import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
@@ -13,22 +14,14 @@ import { AsyncStorage } from 'react-native'
 
 AsyncStorage.multiRemove(['booted', 'user', 'logined', 'entered'])
 
-class App extends Component {
-	componentDidMount() {
-		this.props.willEnterApp()
-	}
-  render() {
-    // if (!this.props.booted) {
-    //   return <Boot {...this.props} />
-    // }
-
-    // if (!this.props.entered) {
-    //   return <Slider {...this.props} />
-    // }
-
-    // if (!this.props.logined) {
-    //   return <Login {...this.props} />
-    // }
+class App extends React.Component {
+  static propTypes = {
+    willEnterApp: PropTypes.func
+  }
+  componentDidMount () {
+    this.props.willEnterApp()
+  }
+  render () {
     return <Tabs {...this.props} />
   }
 }
@@ -44,8 +37,8 @@ function mapStateToProps (state) {
 }
 
 // 将 action 作为 props 绑定到组件上
-function mapDispatchToProps(dispatch) {
-	return bindActionCreators(appActions, dispatch)
+function mapDispatchToProps (dispatch) {
+  return bindActionCreators(appActions, dispatch)
 }
 
 

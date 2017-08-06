@@ -36,9 +36,11 @@
     "uuid": "^3.0.1"
   },
   "devDependencies": {
+    "babel-eslint": "^7.2.3",
     "babel-jest": "19.0.0",
     "babel-preset-react-native": "1.9.1",
     "eslint": "^4.3.0",
+    "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-react": "^7.1.0",
     "jest": "19.0.2",
     "react-test-renderer": "16.0.0-alpha.6"

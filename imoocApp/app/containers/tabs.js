@@ -42,7 +42,6 @@ const InnerScreen = ({navigation, desc}) => (
 const ListScreen = ({navigation}) => (
   <InnerScreen desc='当前是列表页' navigation={navigation} />
 )
-
 const EditScreen = ({navigation}) => (
   <InnerScreen desc='当前是编辑页' navigation={navigation} />
 )

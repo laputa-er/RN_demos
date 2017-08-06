@@ -1,21 +1,27 @@
-import queryString from 'query-string'
-import _ from 'lodash'
+'use strict'
+
+import * as queryString from 'query-string'
+import * as _ from 'lodash'
 import config from './config'
 
-export function get(url, params) {
-	if (params) {
-		url += '?' + queryString.stringify(params)
-	}
-	return fetch(url)
-		.then(response => response.json())
-		.then(response => Mock.mock(response))
+let request = {}
+
+request.get = function (url, params) {
+  if (params) {
+    url += '?' + queryString.stringify(params)
+  }
+
+  return fetch(url)
+    .then((response) => response.json())
 }
 
-export function post(url, body) {
-	const options = _.extend(config.header, {
-		body: JSON.stringify(body)
-	})
-	return fetch(url, options)
-		.then(response => response.json())
-		.then(response => Mock.mock(response))
+request.post = function (url, body) {
+  const options = _.extend(config.header, {
+    body: JSON.stringify(body)
+  })
+
+  return fetch(url, options)
+    .then((response) => response.json())
 }
+
+export default request
