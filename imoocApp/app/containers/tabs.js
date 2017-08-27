@@ -78,7 +78,13 @@ const ListTab = StackNavigator({
     navigationOptions: {
       headerTitle: '狗狗说',
       headerStyle,
-      headerTintColor: '#fff'
+      headerTintColor: '#fff',
+      tabBarIcon: ({tintColor, focused}) => (
+        <Icon
+          name={focused ? 'ios-videocam' : 'ios-videocam-outline'}
+          color={tintColor}
+          size={28} />
+      )
     }
   },
   Detail: {
@@ -117,6 +123,12 @@ const AccountTab = StackNavigator({
       headerTintColor: '#fff',
       headerRight: (
         <Text style={{color: '#fff', paddingRight: 10}} onPress={() => navigation.navigate('AccountUpdate')}>编辑</Text>
+      ),
+      tabBarIcon: ({tintColor, focused}) => (
+        <Icon
+          name={focused ? 'ios-more' : 'ios-more-outline'}
+          color={tintColor}
+          size={28} />
       )
     })
   },
@@ -155,7 +167,12 @@ const Tabs = TabNavigator({
       headerTitle: '编辑视频',
       headerStyle,
       headerTintColor: '#fff',
-      tabBarVisible: false
+      tabBarIcon: ({tintColor, focused}) => (
+        <Icon
+          name={focused ? 'ios-recording' : 'ios-recording-outline'}
+          color={tintColor}
+          size={28} />
+      )
     }
   },
   AccountTab: {
