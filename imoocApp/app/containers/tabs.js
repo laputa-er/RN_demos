@@ -1,11 +1,14 @@
 import React from 'react'
 import Icon from 'react-native-vector-icons/Ionicons'
 import List from './creation'
+import Detail from './detail'
+import Comment from './comment'
 
 import {
   Button,
   Text,
   View,
+  Platform
 } from 'react-native'
 
 import {
@@ -40,10 +43,6 @@ const InnerScreen = ({navigation, desc}) => (
   </View>
 )
 
-const ListScreen = ({navigation}) => (
-  <InnerScreen desc='当前是列表页' navigation={navigation} />
-)
-
 const EditScreen = ({navigation}) => (
   <InnerScreen desc='当前是编辑页' navigation={navigation} />
 )
@@ -52,18 +51,8 @@ const AccountScreen = ({navigation}) => (
   <InnerScreen desc='当前是账户页' navigation={navigation} />
 )
 
-const CommentScreen = ({navigation}) => (
-  <InnerScreen desc='当前是评论页' navigation={navigation} />
-)
-
 const AccountUpdateScreen = ({navigation}) => (
   <InnerScreen desc='当前是账户更新页' navigation={navigation} />
-)
-
-const DetailScreen = ({navigation}) => (
-  <InnerScreen
-    desc={`${navigation.state.params.name} 的咆哮`}
-    navigation={navigation} />
 )
 
 const headerStyle = {
@@ -77,27 +66,35 @@ const ListTab = StackNavigator({
     screen: List,
     navigationOptions: {
       headerTitle: '狗狗说',
-      headerStyle,
+      headerStyle: headerStyle[Platform.OS],
       headerTintColor: '#fff',
       tabBarIcon: ({tintColor, focused}) => (
         <Icon
           name={focused ? 'ios-videocam' : 'ios-videocam-outline'}
           color={tintColor}
-          size={28} />
+          size={28}
+        />
       )
     }
   },
   Detail: {
-    screen: DetailScreen,
+    screen: Detail,
     navigationOptions: ({navigation}) => ({
-      headerTitle: `${navigation.state.params.name} 的创意`,
-      headerStyle,
+      title: `${navigation.state.params.rowData.author.nickname} 的创意`,
+      headerStyle: headerStyle[Platform.OS],
       headerTintColor: '#fff',
-      tabBarVisible: false
+      tabBarVisible: Platform.OS === 'android',
+      tabBarIcon: ({tintColor, focused}) => (
+        <Icon
+          name={focused ? 'ios-videocam' : 'ios-videocam-outline'}
+          color={tintColor}
+          size={28}
+        />
+      )
     })
   },
   Comment: {
-    screen: CommentScreen,
+    screen: Comment,
     navigationOptions: () => ({
       title: '评论',
       headerStyle: headerStyle[Platform.OS],

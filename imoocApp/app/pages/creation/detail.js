@@ -1,25 +1,21 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import Icon from 'react-native-vector-icons/Ionicons'
 import Video from 'react-native-video'
-import util from '../../common/util'
+import * as util from '../../common/util'
 import CommentList from '../comment/list'
+
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
   Dimensions,
-  ActivityIndicator,
+  ActivityIndicator
 } from 'react-native'
 
-const {width} = Dimensions.get('window')
+const { width } = Dimensions.get('window')
 
 export default class Detail extends React.Component {
-  static propTypes = {
-    rowData: PropTypes.object,
-    navigation: PropTypes.object
-  };
   constructor (props) {
     super(props)
 
@@ -97,7 +93,7 @@ export default class Detail extends React.Component {
     })
   }
 
-  _onError () {
+  _onError (e) {
     this.setState({
       videoOk: false
     })
