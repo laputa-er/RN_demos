@@ -1,11 +1,13 @@
 import { combineReducers } from 'redux-immutable'
 
 import app from './app'
+import creations from './creation'
 
 const reducers = {
-	app
+  app,
+  creations
 }
 
-export default function createReducer() {
-	return combineReducers(reducers)
+export default function createReducer () {
+  return combineReducers(reducers)
 }

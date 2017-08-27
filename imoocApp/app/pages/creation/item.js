@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import Icon from 'react-native-vector-icons/Ionicons'
 import request from '../../common/request'
 import config from '../../common/config'
-import util from '../../common/util'
+import * as util from '../../common/util'
 
 import {
   StyleSheet,

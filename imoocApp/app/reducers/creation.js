@@ -8,7 +8,7 @@ const initialState = {
   popup: null
 }
 
-export default creationReducer = (state = initialState, action) => {
+export default function (state = initialState, action) {
   switch (action.type) {
   case types.SHOW_ALERT:
     return {

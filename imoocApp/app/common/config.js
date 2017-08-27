@@ -1,3 +1,5 @@
+const baseUrl = 'http://127.0.0.1:1234/'
+
 export default {
   header: {
     method: 'POST',
@@ -24,16 +26,14 @@ export default {
     audio: 'https://api.cloudinary.com/v1_1/dox3udxny/raw/upload'
   },
   api: {
-    mock: 'http://rapapi.org/mockjs/18917/',
-    base: 'http://127.0.0.1:1234/',
-    creations: 'api/creations',
-    up: 'api/up',
-    comment: 'api/comments',
-    signup: 'api/u/signup',
-    verify: 'api/u/verify',
-    signature: 'api/signature',
-    update: 'api/u/update',
-    video: 'api/creations/video',
-    audio: 'api/creations/audio'
+    creations: baseUrl + 'api/creations',
+    up: baseUrl + 'api/up',
+    comment: baseUrl + 'api/comments',
+    signup: baseUrl + 'api/u/signup',
+    verify: baseUrl + 'api/u/verify',
+    signature: baseUrl + 'api/signature',
+    update: baseUrl + 'api/u/update',
+    video: baseUrl + 'api/creations/video',
+    audio: baseUrl + 'api/creations/audio'
   }
 }

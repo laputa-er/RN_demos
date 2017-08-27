@@ -106,6 +106,7 @@ export const fetchCreations = (feed) => (dispatch, getState) => {
       }
     })
     .catch(err => {
+      console.log(url, err)
       dispatch({
         type: types.FETCH_CREATIONS_REJECTED,
         payload: {

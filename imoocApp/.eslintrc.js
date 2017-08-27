@@ -4,7 +4,10 @@ module.exports = {
         "node": true,
         "browser": true,
     },
-    "parser": "babel-eslint",
+    "globals": {
+        "Platform": true
+    },
+    "parser": "babel-eslint", 
     "extends": [
         "eslint:recommended",
         "plugin:react/recommended",
@@ -48,6 +51,8 @@ module.exports = {
             "named": "always",
             "asyncArrow": "always"
         }],
-        "require-await": "error"
+        "require-await": "error",
+        "react/prop-types": 0,
+        "react/display-name": 0
     }
 };

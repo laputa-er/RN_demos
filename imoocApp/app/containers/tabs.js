@@ -1,5 +1,6 @@
 import React from 'react'
 import Icon from 'react-native-vector-icons/Ionicons'
+import List from './creation'
 
 import {
   Button,
@@ -42,6 +43,7 @@ const InnerScreen = ({navigation, desc}) => (
 const ListScreen = ({navigation}) => (
   <InnerScreen desc='当前是列表页' navigation={navigation} />
 )
+
 const EditScreen = ({navigation}) => (
   <InnerScreen desc='当前是编辑页' navigation={navigation} />
 )
@@ -72,7 +74,7 @@ const headerStyle = {
 
 const ListTab = StackNavigator({
   List: {
-    screen: ListScreen,
+    screen: List,
     navigationOptions: {
       headerTitle: '狗狗说',
       headerStyle,
@@ -90,7 +92,7 @@ const ListTab = StackNavigator({
   },
   Comment: {
     screen: CommentScreen,
-    navigationOptions: ({navigation}) => ({
+    navigationOptions: () => ({
       title: '评论',
       headerStyle: headerStyle[Platform.OS],
       headerTintColor: '#fff',

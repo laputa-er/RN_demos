@@ -7,7 +7,7 @@ import * as creationActions from '../actions/creation'
 
 class CreationContainer extends React.Component {
   static propTypes = {
-    navigation: PropTypes.opject,
+    navigation: PropTypes.object,
     
     fetchCreations: PropTypes.func
   }
