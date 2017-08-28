@@ -1,4 +1,5 @@
-import React, { Component } from 'react'
+import React from 'react'
+import PropTypes from 'prop-types'
 import Button from 'react-native-button'
 
 import { bindActionCreators } from 'redux'
@@ -17,7 +18,12 @@ import {
 
 const { width } = Dimensions.get('window')
 
-class Comment extends Component {
+class Comment extends React.Component {
+  static propTypes = {
+    popAlert: PropTypes.func,
+    isSending:PropTypes.bool,
+    submit: PropTypes.func
+  }
   state = {
     content: ''
   }

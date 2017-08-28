@@ -52,7 +52,6 @@ module.exports = {
             "asyncArrow": "always"
         }],
         "require-await": "error",
-        "react/prop-types": 0,
         "react/display-name": 0
     }
 };

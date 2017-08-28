@@ -92,6 +92,7 @@ export const fetchComments = (cid, feed) => {
       accessToken: 'user.accessToken',
       feed: feed,
       cid: cid,
+      creation: cid,
       id: id
     })
       .then((data) => {

@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
@@ -18,11 +19,16 @@ import {
   TextInput
 } from 'react-native'
 
-const {width, height} = Dimensions.get('window')
+const { width } = Dimensions.get('window')
 
 class Comment extends React.Component {
-  constructor (props) {
-    super(props)
+  static propTypes = {
+    rowData: PropTypes.object,
+    fetchComments: PropTypes.func,
+    navigation: PropTypes.object,
+    commentTotal: PropTypes.number,
+    isCommentLoadingTail: PropTypes.bool,
+    commentList: PropTypes.array
   }
 
   componentDidMount () {
@@ -108,7 +114,6 @@ class Comment extends React.Component {
   _fetchMoreData () {
     const {
       isCommentLoadingTail,
-      commentList,
       fetchComments
     } = this.props
 

@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import Icon from 'react-native-vector-icons/Ionicons'
 import Video from 'react-native-video'
 import * as util from '../../common/util'
@@ -16,9 +17,12 @@ import {
 const { width } = Dimensions.get('window')
 
 export default class Detail extends React.Component {
+  static propTypes = {
+    navigation: PropTypes.object,
+    rowData: PropTypes.object
+  }
   constructor (props) {
     super(props)
-
     this.state = {
       // video loads
       videoOk: true,
@@ -93,7 +97,7 @@ export default class Detail extends React.Component {
     })
   }
 
-  _onError (e) {
+  _onError () {
     this.setState({
       videoOk: false
     })
