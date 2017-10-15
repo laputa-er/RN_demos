@@ -1,64 +1,63 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {
-	Text,
-	View,
-	Image,
-	StyleSheet,
-	Dimensions,
-	TouchableHighlight
+  Text,
+  View,
+  Image,
+  StyleSheet,
+  Dimensions,
+  TouchableHighlight
 } from 'react-native'
 import Swiper from 'react-native-swiper'
 import Button from 'react-native-button'
 
-const width = Dimensions.get('window').width
-const height = Dimensions.get('window').height
+const { width, height } = Dimensions.get('window')
 
 
 export default class Slider extends React.Component {
-	static propTypes = {
-    enterSlide: PropTypes.func
-	};
-	state = {
-		loop: false,
-		banners: [
-			require('../assets/images/s1.jpg'),
-			require('../assets/images/s2.jpg'),
-			require('../assets/images/s3.jpg')
-		]
-	}
-	_enter() {
-		this.props.enterSlide()
-	}
-  render() {
-    return (
-      <Swiper
-				showsPagination={true}
-				dot={<View style={styles.dot} />}
-				activeDot={<View style={styles.activeDot} />}
-				paginationStyle={styles.pagination}
-				loop={this.state.loop}
-			>
-			{
-				this.state.banners.map((banner, index, banners) => {
-					return (
-						<View style={styles.slide} key={'banner' + index}>
-							<Image style={styles.image} source={banner}>
-							{
-								index === banners.length - 1
-								? <TouchableHighlight style={styles.btn} onPress={this._enter.bind(this)}>
-										<Text style={styles.btnText}>马上体验</Text>
-									</TouchableHighlight>
-								: null
-							}
-							</Image>
-						</View>
-					)
-				})
-			}
-      </Swiper>
-    )
-  }
+ static propTypes = {
+   enterSlide: PropTypes.func
+ };
+ state = {
+   loop: false,
+   banners: [
+     require('../assets/images/s1.jpg'),
+     require('../assets/images/s2.jpg'),
+     require('../assets/images/s3.jpg')
+   ]
+ }
+ _enter () {
+   this.props.enterSlide()
+ }
+ render () {
+   return (
+     <Swiper
+       showsPagination={true}
+       dot={<View style={styles.dot} />}
+       activeDot={<View style={styles.activeDot} />}
+       paginationStyle={styles.pagination}
+       loop={this.state.loop}
+     >
+       {
+         this.state.banners.map((banner, index, banners) => {
+           return (
+             <View style={styles.slide} key={'banner' + index}>
+               <Image style={styles.image} source={banner}>
+                 {
+                   index === banners.length - 1
+                     ? <TouchableHighlight style={styles.btn} onPress={this._enter.bind(this)}>
+                       <Text style={styles.btnText}>马上体验</Text>
+                     </TouchableHighlight>
+                     : null
+                 }
+               </Image>
+             </View>
+           )
+         })
+       }
+     </Swiper>
+   )
+ }
 }
 
 const styles = StyleSheet.create({

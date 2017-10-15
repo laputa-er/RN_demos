@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 
@@ -6,6 +7,10 @@ import Comment from '../pages/comment/index'
 import * as commentActions from '../actions/comment'
 
 class CommentContainer extends React.Component {
+  static propTypes = {
+    sendComment: PropTypes.func,
+    navigation: PropTypes.any
+  }
   _submit (content) {
     this.props.sendComment({
       creation: this.props.navigation.state.params.rowData._id,

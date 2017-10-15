@@ -1,14 +1,18 @@
 import React from 'react'
 import Icon from 'react-native-vector-icons/Ionicons'
+
 import List from './creation'
 import Detail from './detail'
 import Comment from './comment'
+import Edit from './edit'
+import Account from './account'
+import AccountUpdate from './accountUpdate'
 
 import {
-  Button,
   Text,
   View,
-  Platform
+  Platform,
+  Button
 } from 'react-native'
 
 import {
@@ -16,49 +20,16 @@ import {
   StackNavigator
 } from 'react-navigation'
 
-const InnerScreen = ({navigation, desc}) => (
-  <View style={{marginTop: 20}}>
-    <Text style={{textAlign: 'center', color: '#f60'}}>{desc}</Text>
-    <Button
-      onPress={() => navigation.navigate('Detail', {
-        name: 'Scott'
-      })}
-      title='列表页：点击前往详情页' />
-    <Button
-      onPress={() => navigation.navigate('Comment', {
-        name: 'Sean'
-      })}
-      title='列表页：点击前往评论页' />
-    <Button
-      onPress={() => navigation.navigate('Edit', {
-        name: 'Sean'
-      })}
-      title='账户页：点击前往编辑页' />
-    <Button
-      onPress={() => navigation.navigate('Account')}
-      title='账户页：点击前往账户页' />
-    <Button
-      onPress={() => navigation.goBack(null)}
-      title='返回上一个页面' />
-  </View>
-)
-
-const EditScreen = ({navigation}) => (
-  <InnerScreen desc='当前是编辑页' navigation={navigation} />
-)
-
-const AccountScreen = ({navigation}) => (
-  <InnerScreen desc='当前是账户页' navigation={navigation} />
-)
-
-const AccountUpdateScreen = ({navigation}) => (
-  <InnerScreen desc='当前是账户更新页' navigation={navigation} />
-)
-
 const headerStyle = {
-  height: 52,
-  paddingTop: 14,
-  backgroundColor: '#ee735c'
+  ios: {
+    height: 52,
+    paddingTop: 14,
+    backgroundColor: '#ee735c'
+  },
+  android: {
+    height: 0,
+    paddingTop: 0
+  }
 }
 
 const ListTab = StackNavigator({
@@ -95,7 +66,7 @@ const ListTab = StackNavigator({
   },
   Comment: {
     screen: Comment,
-    navigationOptions: () => ({
+    navigationOptions: ({navigation}) => ({
       title: '评论',
       headerStyle: headerStyle[Platform.OS],
       headerTintColor: '#fff',
@@ -113,85 +84,111 @@ const ListTab = StackNavigator({
 
 const AccountTab = StackNavigator({
   Account: {
-    screen: AccountScreen,
+    screen: Account,
     navigationOptions: ({navigation}) => ({
       headerTitle: '狗狗的账户',
-      headerStyle,
+      headerStyle: headerStyle[Platform.OS],
       headerTintColor: '#fff',
       headerRight: (
         <Text style={{color: '#fff', paddingRight: 10}} onPress={() => navigation.navigate('AccountUpdate')}>编辑</Text>
       ),
       tabBarIcon: ({tintColor, focused}) => (
         <Icon
-          name={focused ? 'ios-more' : 'ios-more-outline'}
+          name={focused ? 'ios-person' : 'ios-person-outline'}
           color={tintColor}
-          size={28} />
+          size={28}
+        />
       )
     })
   },
   AccountUpdate: {
-    screen: AccountUpdateScreen,
+    screen: AccountUpdate,
     navigationOptions: {
       headerTitle: '更新资料',
-      headerStyle,
+      headerStyle: headerStyle[Platform.OS],
       headerTintColor: '#fff',
-      tabBarVisible: false
+      tabBarIcon: ({tintColor, focused}) => (
+        <Icon
+          name={focused ? 'ios-person' : 'ios-person-outline'}
+          color={tintColor}
+          size={28}
+        />
+      ),
+      tabBarVisible: Platform.OS === 'android'
     }
-  },
-  Edit: {
-    screen: EditScreen,
-    navigationOptions: {
-      headerTitle: '更新资料',
-      headerStyle,
-      headerTintColor: '#fff',
-      tabBarVisible: false
-    }
-  },
-
+  }
 })
+
+const barOptions = {
+  ios: {
+    tabBarPosition: 'bottom',
+    lazyload: true,
+    tabBarOptions: {
+      activeTintColor: '#ee735c',
+      inactiveTintColor: '#666',
+      showIcon: true,
+      showLabel: true,
+      labelStyle: {
+        fontSize: 10
+      },
+      style: {
+        borderTopWidth: 1,
+        borderTopColor: '#f1f1f1',
+        backgroundColor: '#fff'
+      }
+    }
+  },
+  android: {
+    tabBarPosition: 'top',
+    lazyload: true,
+    tabBarOptions: {
+      activeTintColor: '#ee735c',
+      inactiveTintColor: '#666',
+      showIcon: true,
+      showLabel: true,
+      labelStyle: {
+        fontSize: 16
+      },
+      indicatorStyle: {
+        backgroundColor: '#ee735c',
+      },
+      style: {
+        backgroundColor: '#fff'
+      }
+    }
+  }
+}
 
 const Tabs = TabNavigator({
   ListTab: {
     screen: ListTab,
     navigationOptions: {
-      tabBarLable: '狗狗说'
+      tabBarLabel: '狗狗说'
     }
   },
   EditTab: {
-    screen: EditScreen,
+    screen: Edit,
     title: '理解狗狗，从配音开始',
     navigationOptions: {
+      tabBarLabel: '来一段',
       headerTitle: '编辑视频',
-      headerStyle,
+      headerStyle: headerStyle[Platform.OS],
       headerTintColor: '#fff',
       tabBarIcon: ({tintColor, focused}) => (
         <Icon
-          name={focused ? 'ios-recording' : 'ios-recording-outline'}
+          name={focused ? 'ios-mic' : 'ios-mic-outline'}
           color={tintColor}
-          size={28} />
+          size={28}
+        />
       )
     }
   },
   AccountTab: {
-    screen: AccountTab
-  }
-}, {
-  tabBarPosition: 'bottom',
-  lazyload: true,
-  tabBarOptions: {
-    activeTintColor: '#ee735c',
-    inactiveTintColor: '#666',
-    // showIcon: true,
-    // showLabel: false,
-    labelStyle: {
-      fontSize: 12
-    },
-    style: {
-      borderTopWidth: 1,
-      borderTopColor: '#f1f1f1',
-      backgroundColor: '#fff'
+    screen: AccountTab,
+    navigationOptions: {
+      tabBarLabel: '账户资料'
     }
   }
-})
+}, barOptions[Platform.OS])
 
 export default Tabs

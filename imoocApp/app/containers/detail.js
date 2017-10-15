@@ -1,9 +1,13 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 
 import Detail from '../pages/creation/detail'
 
 class DetailContainer extends React.Component {  
+  static propTypes = {
+    navigation: PropTypes.any
+  }
   render () {
     const rowData = this.props.navigation.state.params.rowData
 

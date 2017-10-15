@@ -1,60 +1,60 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import {
-	Text,
-	View,
-	Image,
-	StyleSheet,
-	Dimensions,
-	TouchableHighlight
-} from 'react-native'
 import Swiper from 'react-native-swiper'
 import Button from 'react-native-button'
+import {
+  Text,
+  View,
+  Image,
+  StyleSheet,
+  Dimensions,
+  TouchableHighlight
+} from 'react-native'
 
 const { width, height } = Dimensions.get('window')
 
 export default class Slider extends React.Component {
-	static propTypes = {
-		enterSlide: PropTypes.func,
-		banners: PropTypes.array,
-		sliderLoop: PropTypes.bool
-  };
+ static propTypes = {
+   enterdSlide: PropTypes.func,
+   banners: PropTypes.array,
+   sliderLoop: PropTypes.bool
+ };
   
-  render() {
-		const {
-      banners,
-      sliderLoop,
-      enteredSlide
-		} = this.props
+ render () {
+   const {
+     banners,
+     sliderLoop,
+     enterdSlide
+   } = this.props
 		
-    return (
-      <Swiper
-				showsPagination={true}
-				dot={<View style={styles.dot} />}
-				activeDot={<View style={styles.activeDot} />}
-				paginationStyle={styles.pagination}
-				loop={sliderLoop}
-			>
-			{
-				banners.map((banner, index, banners) => {
-					return (
-						<View style={styles.slide} key={'banner' + index}>
-							<Image style={styles.image} source={banner}>
-							{
-								index === banners.length - 1
-								? <TouchableHighlight style={styles.btn} onPress={enteredSlide}>
-										<Text style={styles.btnText}>马上体验</Text>
-									</TouchableHighlight>
-								: null
-							}
-							</Image>
-						</View>
-					)
-				})
-			}
-      </Swiper>
-    )
-  }
+   return (
+     <Swiper
+       showsPagination={true}
+       dot={<View style={styles.dot} />}
+       activeDot={<View style={styles.activeDot} />}
+       paginationStyle={styles.pagination}
+       loop={sliderLoop}
+     >
+       {
+         banners.map((banner, index, banners) => {
+           return (
+             <View style={styles.slide} key={'banner' + index}>
+               <Image style={styles.image} source={banner}>
+                 {
+                   index === banners.length - 1
+                     ? <TouchableHighlight style={styles.btn} onPress={enterdSlide}>
+                       <Text style={styles.btnText}>马上体验</Text>
+                     </TouchableHighlight>
+                     : null
+                 }
+               </Image>
+             </View>
+           )
+         })
+       }
+     </Swiper>
+   )
+ }
 }
 
 const styles = StyleSheet.create({

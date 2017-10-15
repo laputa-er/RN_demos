@@ -20,7 +20,6 @@ import {
   AppRegistry,
   StyleSheet,
   View,
-  Text,
   TabBarIOS,
   AsyncStorage,
   ActivityIndicator,
@@ -40,11 +39,11 @@ class App extends Component {
     entered: false
   };
 
-  componentDidMount() {
+  componentDidMount () {
     this._asyncAppStatus()
   }
 
-  _asyncAppStatus() {
+  _asyncAppStatus () {
     AsyncStorage.multiGet(['user', 'entered'])
       .then(data => {
         const userData = data[0][1]
@@ -69,7 +68,7 @@ class App extends Component {
       })
   }
 
-  _afterLogin(user) {
+  _afterLogin (user) {
     user = JSON.stringify(user)
     AsyncStorage.setItem('user', user)
       .then(() => {
@@ -78,9 +77,9 @@ class App extends Component {
           user
         })
       })
-	}
+  }
 
-  _logout() {
+  _logout () {
     AsyncStorage.removeItem('user')
     this.setState({
       logined: false,
@@ -88,7 +87,7 @@ class App extends Component {
     })
   }
 
-  _enterSlide() {
+  _enterSlide () {
     this.setState({
       entered: true
     }, () => {
@@ -96,7 +95,7 @@ class App extends Component {
     })
   }
 
-  render() {
+  render () {
     if (!this.state.booted) {
       return (
         <View style={styles.bootPage}>
@@ -120,7 +119,7 @@ class App extends Component {
           onPress={() => {
             this.setState({
               selectedTab: 'list',
-            });
+            })
           }}>
           <Navigator
             initialRoute={{
@@ -144,7 +143,7 @@ class App extends Component {
             this.setState({
               selectedTab: 'edit',
               notifCount: this.state.notifCount + 1,
-            });
+            })
           }}>
           <Edit />
         </Icon.TabBarItem>
@@ -157,7 +156,7 @@ class App extends Component {
             this.setState({
               selectedTab: 'list',
               presses: this.state.presses + 1
-            });
+            })
           }}>
           <Account user={this.state.user} logout={this._logout.bind(this)}/>
         </Icon.TabBarItem>

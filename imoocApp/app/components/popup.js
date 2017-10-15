@@ -10,10 +10,12 @@ import {
 const {width, height} = Dimensions.get('window')
 
 export default class Popup extends React.Component {
-  constructor (props) {
-    super(props)
+  static propTypes = {
+    popup: PropTypes.shape({
+      title: PropTypes.string,
+      content: PropTypes.string
+    })
   }
-
   render () {
     const {
       popup
@@ -31,13 +33,13 @@ export default class Popup extends React.Component {
               popup.title ? <View style={styles.tipTitleBox}>
                 <Text style={styles.tipTitle}>{popup.title}</Text>
               </View>
-              : null
+                : null
             }
             {
               popup.content ? <View style={styles.tipContentBox}>
                 <Text style={styles.tipContent}>{popup.content}</Text>
               </View>
-              : null
+                : null
             }
           </View>
         </View>
