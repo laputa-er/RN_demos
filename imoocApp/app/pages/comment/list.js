@@ -21,7 +21,7 @@ import {
 
 const { width } = Dimensions.get('window')
 
-class Comment extends React.Component {
+class CommentList extends React.Component {
   static propTypes = {
     rowData: PropTypes.object,
     fetchComments: PropTypes.func,
@@ -32,6 +32,7 @@ class Comment extends React.Component {
   }
 
   componentDidMount () {
+    console.log(this.props.rowData, this.props.rowData._id)
     this.props.fetchComments(this.props.rowData._id)
   }
 
@@ -53,7 +54,7 @@ class Comment extends React.Component {
     })
   }
 
-  _renderHeader () {
+  _renderHeader = () => {
     const data = this.props.rowData
 
     return (
@@ -141,11 +142,11 @@ class Comment extends React.Component {
       <ListView
         dataSource={dataSource}
         renderRow={this._renderRow.bind(this)}
-        renderHeader={this._renderHeader.bind(this)}
+        renderHeader={this._renderHeader}
+        removeClippedSubviews={false}
         renderFooter={this._renderFooter.bind(this)}
         onEndReached={this._fetchMoreData.bind(this)}
         onEndReachedThreshold={20}
-        enableEmptySections
         showsVerticalScrollIndicator={false}
         automaticallyAdjustContentInsets={false}
       />
@@ -182,7 +183,7 @@ function mapDispatchToProps (dispatch) {
   return bindActionCreators(commentActions, dispatch)
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Comment)
+export default connect(mapStateToProps, mapDispatchToProps)(CommentList)
 
 const styles = StyleSheet.create({
   container: {
@@ -256,7 +257,7 @@ const styles = StyleSheet.create({
   },
 
   listHeader: {
-    width: width,
+    width,
     marginTop: 10
   },
 
@@ -264,7 +265,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
     padding: 8,
-    width: width
+    width
   },
 
   content: {
@@ -278,7 +279,7 @@ const styles = StyleSheet.create({
   },
 
   commentArea: {
-    width: width,
+    width,
     paddingBottom: 6,
     paddingLeft: 10,
     paddingRight: 10,
