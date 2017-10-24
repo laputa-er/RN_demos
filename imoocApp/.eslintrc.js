@@ -27,6 +27,8 @@ module.exports = {
         "import"
     ],
     "rules": {
+        "import/default": 0,
+        "import/named": 0,
         "no-case-declarations": 0,
         "indent": [
             "error",

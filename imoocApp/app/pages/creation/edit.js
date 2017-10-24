@@ -3,9 +3,14 @@ import _ from 'lodash'
 import Icon from 'react-native-vector-icons/Ionicons'
 import Video from 'react-native-video'
 import ImagePicker from 'react-native-image-picker'
-import {AudioRecorder, AudioUtils} from 'react-native-audio'
+import {
+  AudioRecorder,
+  AudioUtils
+} from 'react-native-audio'
 import Sound from 'react-native-sound'
-import {Circle} from 'react-native-progress'
+import {
+  Circle
+} from 'react-native-progress'
 import Button from 'react-native-button'
 import Popup from '../../components/popup'
 

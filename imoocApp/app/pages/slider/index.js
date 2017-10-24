@@ -1,7 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import Swiper from 'react-native-swiper'
-import Button from 'react-native-button'
 import {
   Text,
   View,

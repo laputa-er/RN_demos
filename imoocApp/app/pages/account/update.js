@@ -1,10 +1,12 @@
+import PropTypes from 'prop-types'
 import Icon from 'react-native-vector-icons/Ionicons'
 import Button from 'react-native-button'
-import {Circle} from 'react-native-progress'
+import { Circle } from 'react-native-progress'
 import ImagePicker from 'react-native-image-picker'
 import request from '../../common/request'
 import Popup from '../../components/popup'
 import config from '../../common/config'
+import * as util from '../../common/util'
 
 import React from 'react'
 import {
@@ -36,7 +38,13 @@ const photoOptions = {
 }
 
 export default class AccountUpdate extends React.Component {
-  constructor(props) {
+  static propTypes = {
+    user: PropTypes.object,
+    checkUserStatus: PropTypes.func,
+    updateUserInfo: PropTypes.func,
+    popAlert: PropTypes.func,
+  }
+  constructor (props) {
     super(props)
 
     const user = this.props.user || {}
@@ -48,11 +56,11 @@ export default class AccountUpdate extends React.Component {
     }
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this.props.checkUserStatus()
   }
 
-  _getQiniuToken() {
+  _getQiniuToken () {
     const accessToken = this.state.user.accessToken
     const signatureURL = config.api.signature
 
@@ -61,20 +69,18 @@ export default class AccountUpdate extends React.Component {
       type: 'avatar',
       cloud: 'qiniu'
     })
-    .catch((err) => {
-      console.log(err)
-    })
+      .catch((err) => {
+        console.log(err)
+      })
   }
 
-  _pickPhoto() {
+  _pickPhoto () {
     let that = this
 
     ImagePicker.showImagePicker(photoOptions, (res) => {
       if (res.didCancel) {
         return
       }
-
-      const avatarData = 'data:image/jpeg;base64,' + res.data
       const uri = res.uri
 
       that._getQiniuToken()
@@ -98,7 +104,7 @@ export default class AccountUpdate extends React.Component {
     })
   }
 
-  _upload(body) {
+  _upload (body) {
     let that = this
     const xhr = new XMLHttpRequest()
     const url = config.qiniu.upload
@@ -167,13 +173,13 @@ export default class AccountUpdate extends React.Component {
     xhr.send(body)
   }
 
-  _asyncUser() {
+  _asyncUser () {
     this.props.updateUserInfo(this.state.user).then(() => {
       this.props.popAlert('汪汪~', '头像更新成功')
     })
   }
 
-  _changeUserState(key, value) {
+  _changeUserState (key, value) {
     let user = this.state.user
 
     user[key] = value
@@ -183,47 +189,47 @@ export default class AccountUpdate extends React.Component {
     })
   }
 
-  render() {
+  render () {
     const user = this.state.user || {}
 
     return (
       <View style={styles.container}>
         {
           user.avatar
-          ? <TouchableOpacity onPress={this._pickPhoto.bind(this)} style={styles.avatarContainer}>
-            <Image source={{uri: util.avatar(user.avatar, 'image')}} style={styles.avatarContainer}>
+            ? <TouchableOpacity onPress={this._pickPhoto.bind(this)} style={styles.avatarContainer}>
+              <Image source={{uri: util.avatar(user.avatar, 'image')}} style={styles.avatarContainer}>
+                <View style={styles.avatarBox}>
+                  {
+                    this.state.avatarUploading
+                      ? <Circle
+                        showsText={true}
+                        size={75}
+                        color={'#ee735c'}
+                        progress={this.state.avatarProgress} />
+                      : <Image
+                        source={{uri: util.avatar(user.avatar, 'image')}}
+                        style={styles.avatar} />
+                  }
+                </View>
+                <Text style={styles.avatarTip}>戳这里换头像</Text>
+              </Image>
+            </TouchableOpacity>
+            : <TouchableOpacity onPress={this._pickPhoto.bind(this)} style={styles.avatarContainer}>
+              <Text style={styles.avatarTip}>添加狗狗头像</Text>
               <View style={styles.avatarBox}>
                 {
                   this.state.avatarUploading
-                  ? <Circle
-                    showsText={true}
-                    size={75}
-                    color={'#ee735c'}
-                    progress={this.state.avatarProgress} />
-                  : <Image
-                    source={{uri: util.avatar(user.avatar, 'image')}}
-                    style={styles.avatar} />
+                    ? <Circle
+                      showsText={true}
+                      size={75}
+                      color={'#ee735c'}
+                      progress={this.state.avatarProgress} />
+                    : <Icon          
+                      name='ios-cloud-upload-outline'
+                      style={styles.plusIcon} />
                 }
               </View>
-              <Text style={styles.avatarTip}>戳这里换头像</Text>
-            </Image>
-          </TouchableOpacity>
-          : <TouchableOpacity onPress={this._pickPhoto.bind(this)} style={styles.avatarContainer}>
-            <Text style={styles.avatarTip}>添加狗狗头像</Text>
-            <View style={styles.avatarBox}>
-              {
-                this.state.avatarUploading
-                ? <Circle
-                    showsText={true}
-                    size={75}
-                    color={'#ee735c'}
-                    progress={this.state.avatarProgress} />
-                : <Icon          
-                    name='ios-cloud-upload-outline'
-                    style={styles.plusIcon} />
-              }
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
         }
 
         

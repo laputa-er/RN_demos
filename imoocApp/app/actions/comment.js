@@ -61,10 +61,6 @@ export const fetchComments = (cid, feed) => {
       commentList
     } = getState().get('comments')
 
-    const {
-      user
-    } = getState().get('app')
-
     if (feed === 'recent') {
       isCommentRefreshing = true
       comment = commentList[0]
