@@ -147,6 +147,7 @@ class CommentList extends React.Component {
         renderFooter={this._renderFooter.bind(this)}
         onEndReached={this._fetchMoreData.bind(this)}
         onEndReachedThreshold={20}
+        enableEmptySections={false}
         showsVerticalScrollIndicator={false}
         automaticallyAdjustContentInsets={false}
       />
