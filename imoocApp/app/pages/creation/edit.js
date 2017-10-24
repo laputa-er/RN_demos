@@ -33,7 +33,7 @@ import {
 
 class StatusBar extends React.Component {
   static propTypes = { 
-    progress: PropTypes.func
+    progress: PropTypes.number
   }
   
   render () {
