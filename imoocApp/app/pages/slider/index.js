@@ -23,7 +23,7 @@ export default class Slider extends React.Component {
    const {
      banners,
      sliderLoop,
-     enterdSlide
+     enteredSlide
    } = this.props
 		
    return (
@@ -41,7 +41,7 @@ export default class Slider extends React.Component {
                <Image style={styles.image} source={banner}>
                  {
                    index === banners.length - 1
-                     ? <TouchableHighlight style={styles.btn} onPress={enterdSlide}>
+                     ? <TouchableHighlight style={styles.btn} onPress={enteredSlide}>
                        <Text style={styles.btnText}>马上体验</Text>
                      </TouchableHighlight>
                      : null
