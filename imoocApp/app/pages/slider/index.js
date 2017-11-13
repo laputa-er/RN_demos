@@ -6,6 +6,7 @@ import {
   View,
   Image,
   StyleSheet,
+  Platform,
   Dimensions,
   TouchableHighlight
 } from 'react-native'
@@ -14,7 +15,7 @@ const { width, height } = Dimensions.get('window')
 
 export default class Slider extends React.Component {
  static propTypes = {
-   enterdSlide: PropTypes.func,
+   enteredSlide: PropTypes.func,
    banners: PropTypes.array,
    sliderLoop: PropTypes.bool
  };
@@ -100,10 +101,18 @@ const styles = StyleSheet.create({
     left: 10,
     bottom: 60,
     height: 50,
-    padding: 15,
+    padding: 10,
     backgroundColor: '#ee735c',
     borderColor: '#ee735c',
     borderWidth: 1,
+    ...Platform.select({
+      ios: {
+        borderRadius: 3
+      },
+      android: {
+        borderRadius: 0
+      }
+    }),
     borderRadius: 3
   },
 
