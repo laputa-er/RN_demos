@@ -10,9 +10,7 @@ import AccountUpdate from './accountUpdate'
 
 import {
   Text,
-  View,
   Platform,
-  Button
 } from 'react-native'
 
 import {
